@@ -1,0 +1,9 @@
+[package]
+name = "todo-txt"
+version = "0.1.0"
+authors = ["Jeremy Cowgar <jeremy@cowgar.com>"]
+
+[dependencies]
+regex = "1"
+lazy_static = "1.2.0"
+
