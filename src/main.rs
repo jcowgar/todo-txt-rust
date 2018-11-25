@@ -4,57 +4,45 @@ extern crate regex;
 use std::collections::HashMap;
 use regex::Regex;
 
+#[derive(Debug)]
 struct Todo {
-    raw: String,
     is_complete: bool,
-    task: String,
-    priority: Option<char>,
-    projects: Vec<String>,
-    contexts: Vec<String>,
-    key_values: HashMap<String, String>,
+    task       : String,
+    priority   : Option<char>,
+    projects   : Vec<String>,
+    contexts   : Vec<String>,
+    key_values : HashMap<String, String>,
 }
 
 lazy_static! {
-    static ref PARSE_RE: Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.*$)").unwrap();
+    static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
+    static ref PROJECTS_RE:   Regex = Regex::new(r"+(\w+)").unwrap();
+    static ref CONTEXTS_RE:   Regex = Regex::new(r"@(\w+)").unwrap();
+    static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>\w+):(?P<value>\w+)").unwrap();
 }
 
 fn parse(line: &str) -> Option<Todo> {
-    let matches = PARSE_RE.captures(line);
+  let m = PARSE_RE.captures(line)?;
+    
+	let task = match m.name("task") {
+		None    => return None,
+		Some(t) => String::from(t.as_str()),
+	};
 
-    if matches.is_some() {
-        let m = matches.unwrap();
+  let projects    = Vec::new();
+  let contexts    = Vec::new();
+  let key_values  = HashMap::new();
+  let is_complete = m.name("complete").is_some();
+  let priority    = m.name("priority").map(|p| p.as_str().chars().next().unwrap());
 
-        let is_complete = m.name("complete").is_some();
-        let priority_match = m.name("priority");
-        let task_match = m.name("task");
-
-        let priority = if priority_match.is_some() {
-            let p_str = priority_match.unwrap().as_str();
-            let mut p_chars = p_str.chars();
-
-            p_chars.next()
-        } else {
-            None
-        };
-
-        let task = if task_match.is_some() {
-            String::from(task_match.unwrap().as_str())
-        } else {
-            String::new()
-        };
-
-        Some(Todo {
-            raw: line.to_string(),
-            is_complete,
-            task,
-            priority,
-            projects: Vec::new(),
-            contexts: Vec::new(),
-            key_values: HashMap::new(),
-        })
-    } else {
-        None
-    }
+	Some(Todo {
+	    is_complete,
+	    task,
+	    priority,
+	    projects,
+	    contexts,
+	    key_values,
+	})
 }
 
 fn main() {
@@ -67,15 +55,10 @@ fn main() {
     for example in examples.iter() {
         let t = parse(example);
 
-        if t.is_some() {
-            let t = t.unwrap();
-            let p = if t.priority.is_some() {
-                t.priority.unwrap()
-            } else {
-                ' '
-            };
-
-            println!("Raw={}, IsComplete={}, Priority={}, Task={}", t.raw, t.is_complete, p, t.task);
-        }
+        match t {
+	        None => println!("Could not parse: {}", example),
+	        Some(task) => println!("{:?}", task),
+        };
     }
 }
+
