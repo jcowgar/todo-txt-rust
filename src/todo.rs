@@ -58,3 +58,31 @@ impl Todo {
   }
 }
 
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn parse_simple_todo() {
+    let t = Todo::parse("Say hello to mom").unwrap();
+
+    assert_eq!(t.task, "Say hello to mom");
+    assert_eq!(t.is_complete, false);
+    assert_eq!(t.priority.is_none(), true);
+  }
+
+  #[test]
+  fn parse_completed_todo() {
+    let t = Todo::parse("x Say hello to mom").unwrap();
+
+    assert_eq!(t.is_complete, true);
+  }
+
+  #[test]
+  fn parse_todo_with_priority() {
+    let t = Todo::parse("(A) Say hello to mom").unwrap();
+
+    assert_eq!(t.priority.unwrap(), 'A');
+  }
+}
+
