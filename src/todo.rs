@@ -3,7 +3,7 @@ use regex::Regex;
 
 lazy_static! {
     static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
-    static ref PROJECTS_RE:   Regex = Regex::new(r"+(\w+)").unwrap();
+    static ref PROJECTS_RE:   Regex = Regex::new(r"\+(\w+)").unwrap();
     static ref CONTEXTS_RE:   Regex = Regex::new(r"@(\w+)").unwrap();
     static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>\w+):(?P<value>\w+)").unwrap();
 }
@@ -41,8 +41,8 @@ impl Todo {
   		Some(t) => String::from(t.as_str()),
   	};
 
-    let projects    = Vec::new();
-    let contexts    = Vec::new();
+  	let projects    = PROJECTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
+    let contexts    = CONTEXTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
     let key_values  = HashMap::new();
     let is_complete = m.name("complete").is_some();
     let priority    = m.name("priority").map(|p| p.as_str().chars().next().unwrap());
@@ -69,6 +69,8 @@ mod tests {
     assert_eq!(t.task, "Say hello to mom");
     assert_eq!(t.is_complete, false);
     assert_eq!(t.priority.is_none(), true);
+    assert_eq!(t.projects.len(), 0);
+    assert_eq!(t.contexts.len(), 0);
   }
 
   #[test]
@@ -83,6 +85,22 @@ mod tests {
     let t = Todo::parse("(A) Say hello to mom").unwrap();
 
     assert_eq!(t.priority.unwrap(), 'A');
+  }
+
+  #[test]
+  fn parse_todo_with_projects() {
+    let t = Todo::parse("Say hello to mom +Family").unwrap();
+
+		assert_eq!(t.projects.len(), 1);
+    assert_eq!(t.projects[0], "+Family");
+  }
+  
+  #[test]
+  fn parse_todo_with_contexts() {
+    let t = Todo::parse("Say hello to mom @phone").unwrap();
+
+		assert_eq!(t.contexts.len(), 1);
+    assert_eq!(t.contexts[0], "@phone");
   }
 }
 

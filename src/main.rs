@@ -6,10 +6,10 @@ mod todo;
 fn main() {
     let examples = [
         "(A) Thank Mom for the meatballs @phone",
-        "x (B) Get tires on the van @maintenance",
-        "Learn Rust",
+        "x (B) Get tires on the van @maintenance due:2018-12-01",
+        "Learn Rust +Learn @computer",
     ];
-    
+
     let parsed = examples.iter()
     	.map(|v| todo::Todo::parse(v))
     	.filter(|v| v.is_some())
