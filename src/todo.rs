@@ -15,7 +15,7 @@ pub struct Todo {
 
   /// Task title
   task       : String,
-  
+
   /// Priority (if any), A-Z.
   priority   : Option<char>,
 
@@ -35,12 +35,10 @@ impl Todo {
   /// The method may return None, if the line could not be parsed.
   pub fn parse(line: &str) -> Option<Todo> {
     let m = PARSE_RE.captures(line)?;
-      
   	let task = match m.name("task") {
   		None    => return None,
   		Some(t) => String::from(t.as_str()),
   	};
-
   	let projects    = PROJECTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
     let contexts    = CONTEXTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
     let key_values  = KEY_VALUES_RE.captures_iter(&task)
@@ -96,7 +94,7 @@ mod tests {
 		assert_eq!(t.projects.len(), 1);
     assert_eq!(t.projects[0], "+Family");
   }
-  
+
   #[test]
   fn parse_todo_with_contexts() {
     let t = Todo::parse("Say hello to mom @phone").unwrap();

@@ -2,6 +2,7 @@
 extern crate regex;
 
 mod todo;
+mod todo_file;
 
 fn main() {
     let examples = [
@@ -20,6 +21,14 @@ fn main() {
 	        None => println!("Could not parse"),
 	        Some(task) => println!("{:?}", task),
         };
+    }
+
+    let f = todo_file::TodoFile::parse("/home/jeremy/.todo-txt/todo.txt");
+    match f {
+        Ok(parsed_file) => for t in parsed_file.todos {
+            println!("{:?}", t);
+        },
+        _ => println!("Couldn't parse file"),
     }
 }
 
