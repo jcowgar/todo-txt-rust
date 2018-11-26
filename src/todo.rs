@@ -5,7 +5,7 @@ lazy_static! {
     static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
     static ref PROJECTS_RE:   Regex = Regex::new(r"\+(\w+)").unwrap();
     static ref CONTEXTS_RE:   Regex = Regex::new(r"@(\w+)").unwrap();
-    static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>\w+):(?P<value>\w+)").unwrap();
+    static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>\w+):(?P<value>[^\s]+)").unwrap();
 }
 
 #[derive(Debug)]
@@ -43,7 +43,9 @@ impl Todo {
 
   	let projects    = PROJECTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
     let contexts    = CONTEXTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
-    let key_values  = HashMap::new();
+    let key_values  = KEY_VALUES_RE.captures_iter(&task)
+    	.map(|cap| (String::from(&cap[1]), String::from(&cap[2])))
+    	.collect();
     let is_complete = m.name("complete").is_some();
     let priority    = m.name("priority").map(|p| p.as_str().chars().next().unwrap());
 
@@ -101,6 +103,14 @@ mod tests {
 
 		assert_eq!(t.contexts.len(), 1);
     assert_eq!(t.contexts[0], "@phone");
+  }
+
+  #[test]
+  fn parse_todo_with_key_value_pairs() {
+    let t = Todo::parse("Say hello to mom due:2018-12-25 time:1am").unwrap();
+
+    assert_eq!(t.key_values.contains_key("due"), true);
+    assert_eq!(t.key_values.contains_key("time"), true);
   }
 }
 
