@@ -6,6 +6,11 @@ extern crate regex;
 use gumdrop::Options;
 
 mod cmd_ls;
+mod cmd_add;
+mod cmd_do;
+mod cmd_rm;
+mod cmd_help;
+
 mod todo;
 mod todo_file;
 
@@ -32,43 +37,19 @@ struct MyOptions {
 #[derive(Debug, Options)]
 enum Command {
     #[options(help = "Show help for a command")]
-    Help(HelpOpts),
+    Help(cmd_help::Opts),
 
     #[options(help = "List todos")]
     Ls(cmd_ls::Opts),
 
     #[options(help = "Add a new todo")]
-    Add(AddOpts),
+    Add(cmd_add::Opts),
 
     #[options(help = "Mark a todo as done")]
-    Do(DoOpts),
+    Do(cmd_do::Opts),
 
     #[options(help = "Remove a todo")]
-    Rm(RmOpts),
-}
-
-#[derive(Debug, Options)]
-struct HelpOpts {
-    #[options(free)]
-    free: Vec<String>,
-}
-
-#[derive(Debug, Options)]
-struct AddOpts {
-    #[options(help = "Priority of the new todo")]
-    priority: char,
-}
-
-#[derive(Debug, Options)]
-struct DoOpts {
-    #[options(help = "Id of todo to mark complete")]
-    id: i32,
-}
-
-#[derive(Debug, Options)]
-struct RmOpts {
-    #[options(help = "Id of todo to remove")]
-    id: i32,
+    Rm(cmd_rm::Opts),
 }
 
 fn main() {
@@ -89,6 +70,10 @@ fn main() {
 
     match opts.command {
         Some(Command::Ls(copts)) => cmd_ls::execute(&copts, &f),
+        Some(Command::Do(copts)) => cmd_do::execute(&copts, &f),
+        Some(Command::Rm(copts)) => cmd_rm::execute(&copts, &f),
+        Some(Command::Add(copts)) => cmd_add::execute(&copts, &f),
+        Some(Command::Help(copts)) => cmd_help::execute(&copts),
         _ => println!("No command given: {:?}", opts),
     }
 }
