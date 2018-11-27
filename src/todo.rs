@@ -156,6 +156,9 @@ mod tests {
     let t = Todo::parse("Say hello to mom due:2018-12-25 time:1am").unwrap();
 
     assert_eq!(t.key_values.contains_key("due"), true);
+    assert_eq!(t.key_values.get("due"), Some(&String::from("2018-12-25")));
+
     assert_eq!(t.key_values.contains_key("time"), true);
+    assert_eq!(t.key_values.get("time"), Some(&String::from("1am")));
   }
 }
