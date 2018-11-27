@@ -13,14 +13,12 @@ lazy_static! {
 fn serialize(is_complete: bool, task: &str, priority: Option<char>) -> String {
     let mut out = Vec::new();
 
-    match is_complete {
-        true => out.push(String::from("x")),
-        _ => (),
+    if is_complete {
+      out.push(String::from("x"));
     }
 
-    match priority {
-        Some(p) => out.push(format!("({})", p)),
-        None => (),
+    if let Some(p) = priority {
+      out.push(format!("({})", p));
     }
 
     out.push(String::from(task));
@@ -30,7 +28,7 @@ fn serialize(is_complete: bool, task: &str, priority: Option<char>) -> String {
 
 #[derive(Debug)]
 /// Todo item
-/// 
+///
 /// See <TodoFile>
 pub struct Todo {
   /// true if todo item is done.
