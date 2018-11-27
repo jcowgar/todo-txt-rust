@@ -101,7 +101,13 @@ impl Todo {
   /// Compare two Todo structures by priority and task title
   pub fn cmp(&self, b: &Todo) -> Ordering {
     if self.priority.is_none() && b.priority.is_none() {
-      self.task.cmp(&b.task)
+      if self.is_complete == b.is_complete {
+        self.task.cmp(&b.task)
+      } else if self.is_complete {
+        return Ordering::Greater;
+      } else {
+        return Ordering::Less;
+      }
     } else if self.priority.is_none() {
       Ordering::Greater
     } else if b.priority.is_none() {
@@ -112,7 +118,13 @@ impl Todo {
       let priority_result = apri.cmp(&bpri);
 
       if priority_result == Ordering::Equal {
-        return self.task.cmp(&b.task);
+        if self.is_complete == b.is_complete {
+          return self.task.cmp(&b.task);
+        } else if self.is_complete {
+          return Ordering::Greater;
+        } else {
+          return Ordering::Less;
+        }
       } else {
         priority_result
       }
