@@ -4,12 +4,20 @@ extern crate regex;
 mod todo;
 mod todo_file;
 
+#[derive(Debug, Options)]
+struct MyOptions {
+    #[options(free)]
+    free: Vec<String>,
+
+    #[options(help = "Print help message")]
+    help: bool,
+
+    #[options(help = "Verbose output")]
+    verbose: bool,
+}
+
 fn main() {
-    let examples = [
-        "(A) Thank Mom for the meatballs @phone",
-        "x (B) Get tires on the van @maintenance due:2018-12-01",
-        "Learn Rust +Learn @computer",
-    ];
+    let opts = MyOptions::parse_args_default_or_exit();
 
     let parsed = examples.iter()
     	.map(|v| todo::Todo::parse(v))

@@ -6,4 +6,4 @@ authors = ["Jeremy Cowgar <jeremy@cowgar.com>"]
 [dependencies]
 regex = "1"
 lazy_static = "1.2.0"
-
+gumdrop = "0.5.0"
