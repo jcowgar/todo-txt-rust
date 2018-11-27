@@ -10,6 +10,24 @@ lazy_static! {
     static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>\w+):(?P<value>[^\s]+)").unwrap();
 }
 
+fn serialize(is_complete: bool, task: &str, priority: Option<char>) -> String {
+    let mut out = Vec::new();
+
+    match is_complete {
+        true => out.push(String::from("x")),
+        _ => (),
+    }
+
+    match priority {
+        Some(p) => out.push(format!("({})", p)),
+        None => (),
+    }
+
+    out.push(String::from(task));
+
+    out.join(" ").to_string()
+}
+
 #[derive(Debug)]
 /// Todo item
 /// 
@@ -35,6 +53,13 @@ pub struct Todo {
 }
 
 impl Todo {
+  pub fn new(task: &str, is_complete: bool, priority: Option<char>) -> Todo {
+    let serialized = serialize(is_complete, task, priority);
+    let result = Todo::parse(&serialized);
+
+    result.unwrap()
+  }
+
   /// Create a new Todo structure from the given raw line.
   ///
   /// The method may return None, if the line could not be parsed.
@@ -69,6 +94,10 @@ impl Todo {
       contexts,
       key_values,
     })
+  }
+
+  pub fn serialize(&self) -> String {
+    serialize(self.is_complete, &self.task, self.priority)
   }
 
   /// Compare two Todo structures by priority and task title

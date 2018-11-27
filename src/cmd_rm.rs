@@ -7,5 +7,5 @@ pub struct Opts {
     id: i32,
 }
 
-pub fn execute(opts: &Opts, f: &TodoFile) {
+pub fn execute(opts: &Opts) {
 }

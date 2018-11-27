@@ -14,14 +14,6 @@ mod cmd_help;
 mod todo;
 mod todo_file;
 
-use todo_file::TodoFile;
-
-#[cfg(target_family = "linux")]
-const TODO_FILE: &str = "~/.todo-txt/todo.txt";
-
-#[cfg(target_family = "windows")]
-const TODO_FILE: &str = "\\Users\\jerem\\.todo-txt\\todo.txt";
-
 #[derive(Debug, Options)]
 struct MyOptions {
     #[options(help = "Print help message")]
@@ -55,24 +47,11 @@ enum Command {
 fn main() {
     let opts = MyOptions::parse_args_default_or_exit();
 
-    if opts.verbose {
-        println!("File: {}", TODO_FILE);
-        println!("");
-    }
-
-    let f = TodoFile::parse(TODO_FILE);
-
-    if f.is_err() {
-        return ();
-    }
-
-    let f = f.unwrap();
-
     match opts.command {
-        Some(Command::Ls(copts)) => cmd_ls::execute(&copts, &f),
-        Some(Command::Do(copts)) => cmd_do::execute(&copts, &f),
-        Some(Command::Rm(copts)) => cmd_rm::execute(&copts, &f),
-        Some(Command::Add(copts)) => cmd_add::execute(&copts, &f),
+        Some(Command::Ls(copts)) => cmd_ls::execute(&copts),
+        Some(Command::Do(copts)) => cmd_do::execute(&copts),
+        Some(Command::Rm(copts)) => cmd_rm::execute(&copts),
+        Some(Command::Add(copts)) => cmd_add::execute(&copts),
         Some(Command::Help(copts)) => cmd_help::execute(&copts),
         _ => println!("No command given: {:?}", opts),
     }

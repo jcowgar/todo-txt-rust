@@ -16,7 +16,15 @@ pub struct Opts {
     title_order: bool,
 }
 
-pub fn execute(opts: &Opts, f: &TodoFile) {
+pub fn execute(opts: &Opts) {
+    let f = TodoFile::parse_default();
+
+    if f.is_err() {
+        return ();
+    }
+
+    let f = f.unwrap();
+
     let mut index = 0;
     let mut todos = f.todos.clone();
 
