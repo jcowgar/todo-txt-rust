@@ -7,7 +7,7 @@ use std::io::BufReader;
 use todo::Todo;
 
 #[cfg(target_family = "unix")]
-const TODO_FILE: &str = "~/.todo-txt/todo.txt";
+const TODO_FILE: &str = "/Users/jeremy/.todo-txt/todo.txt";
 
 #[cfg(target_family = "windows")]
 const TODO_FILE: &str = "\\Users\\jerem\\.todo-txt\\todo.txt";
@@ -63,4 +63,39 @@ impl TodoFile {
     pub fn write_default(&self) -> std::io::Result<()> {
         self.write(TODO_FILE)
     }
+}
+
+pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
+    let f = try!(File::open(filename));
+    let file = BufReader::new(&f);
+    let todos = file
+        .lines()
+        .map(|line| {
+            let lineu = line.unwrap();
+            Todo::parse(&lineu)
+        }).filter(|t| t.is_some())
+        .map(|t| t.unwrap())
+        .collect();
+
+    Ok(todos)
+}
+
+pub fn parse_todos_from_default_file() -> Result<Vec<Todo>, io::Error> {
+    parse_todos(TODO_FILE)
+}
+
+pub fn write_todos(filename: &str, todos: &Vec<Todo>) -> Result<(), io::Error> {
+    let mut f = File::create(filename)?;
+
+    for t in todos {
+        f.write(&format!("{}\n", &t.serialize()).into_bytes())?;
+    }
+
+    f.flush()?;
+
+    Ok(())
+}
+
+pub fn write_todos_to_default_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
+    write_todos(TODO_FILE, todos)
 }
