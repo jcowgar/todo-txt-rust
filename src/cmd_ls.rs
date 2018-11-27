@@ -1,6 +1,8 @@
 use gumdrop::Options;
 use todo_file::TodoFile;
 
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+
 #[derive(Debug, Options)]
 pub struct Opts {
     #[options(help = "Only todos for a given project")]
@@ -61,10 +63,23 @@ pub fn execute(opts: &Opts) {
         todos.sort_by(|a, b| a.cmp(b));
     }
 
+    let mut stdout = StandardStream::stdout(ColorChoice::Always);
+
     for t in todos {
         let mut out = Vec::new();
 
         index += 1;
+
+        let color = match t.is_complete {
+            true => Color::Green,
+            false => match t.priority {
+                Some('A') => Color::Red,
+                Some('B') => Color::Cyan,
+                Some('C') => Color::Magenta,
+                Some(_) => Color::Yellow,
+                None => Color::White,
+            },
+        };
 
         match t.is_complete {
             true => out.push(String::from("[X]")),
@@ -77,6 +92,9 @@ pub fn execute(opts: &Opts) {
         }
 
         out.push(t.task.clone());
+
+        stdout.set_color(ColorSpec::new().set_fg(Some(color)))
+            .expect("Could not set foreground color");
 
         println!("{}: {}", index, out.join(" "));
     }

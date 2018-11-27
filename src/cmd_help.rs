@@ -6,5 +6,5 @@ pub struct Opts {
     free: Vec<String>,
 }
 
-pub fn execute(opts: &Opts) {
+pub fn execute(_opts: &Opts) {
 }

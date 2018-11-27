@@ -2,6 +2,7 @@
 extern crate lazy_static;
 extern crate gumdrop;
 extern crate regex;
+extern crate termcolor;
 
 use gumdrop::Options;
 
