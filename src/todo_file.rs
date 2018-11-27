@@ -3,7 +3,7 @@ use std::io::BufRead;
 use std::io;
 use std::fs::File;
 
-use todo;
+use todo::Todo;
 
 #[derive(Debug)]
 pub struct TodoFile {
@@ -11,7 +11,7 @@ pub struct TodoFile {
     pub filename: String,
 
     /// List of todos contained in the file
-    pub todos: Vec<Option<todo::Todo>>,
+    pub todos: Vec<Todo>,
 }
 
 impl TodoFile {
@@ -21,8 +21,11 @@ impl TodoFile {
         let file = BufReader::new(&f);
         let todos = file.lines().map(|line| {
             let lineu = line.unwrap();
-            todo::Todo::parse(&lineu)
-        }).collect();
+            Todo::parse(&lineu)
+        })
+        .filter(|t| t.is_some())
+        .map(|t| t.unwrap())
+        .collect();
 
         Ok(TodoFile {
             filename: String::from(filename),

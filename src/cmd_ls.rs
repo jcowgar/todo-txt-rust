@@ -17,19 +17,17 @@ pub fn execute(opts: &Opts, f: &TodoFile) {
     let mut index = 0;
 
     for t in &f.todos {
-        if let Some(ti) = t {
-            let mut out = Vec::new();
+        let mut out = Vec::new();
 
-            index += 1;
+        index += 1;
 
-            match ti.priority {
-                Some(p) => out.push(format!("({})", p)),
-                None => out.push(String::from("   ")),
-            }
-
-            out.push(ti.task.clone());
-
-            println!("{}: {}", index, out.join(" "));
+        match t.priority {
+            Some(p) => out.push(format!("({})", p)),
+            None => out.push(String::from("   ")),
         }
+
+        out.push(t.task.clone());
+
+        println!("{}: {}", index, out.join(" "));
     }
 }
