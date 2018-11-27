@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 use regex::Regex;
 
@@ -12,23 +12,23 @@ lazy_static! {
 
 #[derive(Debug)]
 pub struct Todo {
-	/// true if todo item is done.
+  /// true if todo item is done.
   pub is_complete: bool,
 
   /// Task title
-  pub task       : String,
+  pub task: String,
 
   /// Priority (if any), A-Z.
-  pub priority   : Option<char>,
+  pub priority: Option<char>,
 
   /// Project tags (+Project)
-  pub projects   : Vec<String>,
+  pub projects: Vec<String>,
 
   /// Context tags (@context)
-  pub contexts   : Vec<String>,
+  pub contexts: Vec<String>,
 
   /// Key value attributes (key:value)
-  pub key_values : HashMap<String, String>,
+  pub key_values: HashMap<String, String>,
 }
 
 impl Todo {
@@ -37,45 +37,54 @@ impl Todo {
   /// The method may return None, if the line could not be parsed.
   pub fn parse(line: &str) -> Option<Todo> {
     let m = PARSE_RE.captures(line)?;
-  	let task = match m.name("task") {
-  		None    => return None,
-  		Some(t) => String::from(t.as_str()),
-  	};
-  	let projects    = PROJECTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
-    let contexts    = CONTEXTS_RE.captures_iter(&task).map(|cap| String::from(&cap[0])).collect();
-    let key_values  = KEY_VALUES_RE.captures_iter(&task)
-    	.map(|cap| (String::from(&cap[1]), String::from(&cap[2])))
-    	.collect();
+    let task = match m.name("task") {
+      None => return None,
+      Some(t) => String::from(t.as_str()),
+    };
+    let projects = PROJECTS_RE
+      .captures_iter(&task)
+      .map(|cap| String::from(&cap[0]))
+      .collect();
+    let contexts = CONTEXTS_RE
+      .captures_iter(&task)
+      .map(|cap| String::from(&cap[0]))
+      .collect();
+    let key_values = KEY_VALUES_RE
+      .captures_iter(&task)
+      .map(|cap| (String::from(&cap[1]), String::from(&cap[2])))
+      .collect();
     let is_complete = m.name("complete").is_some();
-    let priority    = m.name("priority").map(|p| p.as_str().chars().next().unwrap());
+    let priority = m
+      .name("priority")
+      .map(|p| p.as_str().chars().next().unwrap());
 
-  	Some(Todo {
-  	    is_complete,
-  	    task,
-  	    priority,
-  	    projects,
-  	    contexts,
-  	    key_values,
-  	})
+    Some(Todo {
+      is_complete,
+      task,
+      priority,
+      projects,
+      contexts,
+      key_values,
+    })
   }
 
   pub fn cmp(&self, b: &Todo) -> Ordering {
     if self.priority.is_none() && b.priority.is_none() {
-        self.task.cmp(&b.task)
+      self.task.cmp(&b.task)
     } else if self.priority.is_none() {
-        Ordering::Greater
+      Ordering::Greater
     } else if b.priority.is_none() {
-        Ordering::Less
+      Ordering::Less
     } else {
-        let apri = self.priority.unwrap();
-        let bpri = b.priority.unwrap();
-        let priority_result = apri.cmp(&bpri);
+      let apri = self.priority.unwrap();
+      let bpri = b.priority.unwrap();
+      let priority_result = apri.cmp(&bpri);
 
-        if priority_result == Ordering::Equal {
-            return self.task.cmp(&b.task)
-        } else {
-            priority_result
-        }
+      if priority_result == Ordering::Equal {
+        return self.task.cmp(&b.task);
+      } else {
+        priority_result
+      }
     }
   }
 
@@ -130,7 +139,7 @@ mod tests {
   fn parse_todo_with_projects() {
     let t = Todo::parse("Say hello to mom +Family").unwrap();
 
-		assert_eq!(t.projects.len(), 1);
+    assert_eq!(t.projects.len(), 1);
     assert_eq!(t.projects[0], "+Family");
   }
 
@@ -138,7 +147,7 @@ mod tests {
   fn parse_todo_with_contexts() {
     let t = Todo::parse("Say hello to mom @phone").unwrap();
 
-		assert_eq!(t.contexts.len(), 1);
+    assert_eq!(t.contexts.len(), 1);
     assert_eq!(t.contexts[0], "@phone");
   }
 
@@ -150,4 +159,3 @@ mod tests {
     assert_eq!(t.key_values.contains_key("time"), true);
   }
 }
-

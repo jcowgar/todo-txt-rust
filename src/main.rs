@@ -5,9 +5,9 @@ extern crate regex;
 
 use gumdrop::Options;
 
+mod cmd_ls;
 mod todo;
 mod todo_file;
-mod cmd_ls;
 
 use todo_file::TodoFile;
 
@@ -73,7 +73,7 @@ struct RmOpts {
 
 fn main() {
     let opts = MyOptions::parse_args_default_or_exit();
-    
+
     if opts.verbose {
         println!("File: {}", TODO_FILE);
         println!("");
