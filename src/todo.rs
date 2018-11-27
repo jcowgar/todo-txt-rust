@@ -11,22 +11,22 @@ lazy_static! {
 #[derive(Debug)]
 pub struct Todo {
 	/// true if todo item is done.
-  is_complete: bool,
+  pub is_complete: bool,
 
   /// Task title
-  task       : String,
+  pub task       : String,
 
   /// Priority (if any), A-Z.
-  priority   : Option<char>,
+  pub priority   : Option<char>,
 
   /// Project tags (+Project)
-  projects   : Vec<String>,
+  pub projects   : Vec<String>,
 
   /// Context tags (@context)
-  contexts   : Vec<String>,
+  pub contexts   : Vec<String>,
 
   /// Key value attributes (key:value)
-  key_values : HashMap<String, String>,
+  pub key_values : HashMap<String, String>,
 }
 
 impl Todo {

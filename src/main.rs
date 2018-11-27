@@ -1,8 +1,19 @@
 #[macro_use] extern crate lazy_static;
+extern crate gumdrop;
 extern crate regex;
+
+use gumdrop::Options;
 
 mod todo;
 mod todo_file;
+
+use todo_file::TodoFile;
+
+#[cfg(target_family = "linux")]
+const TODO_FILE: &str = "~/.todo-txt/todo.txt";
+
+#[cfg(target_family = "windows")]
+const TODO_FILE: &str = "\\Users\\jerem\\.todo-txt\\todo.txt";
 
 #[derive(Debug, Options)]
 struct MyOptions {
@@ -16,27 +27,38 @@ struct MyOptions {
     verbose: bool,
 }
 
-fn main() {
-    let opts = MyOptions::parse_args_default_or_exit();
+fn ls(tfile: &TodoFile) {
+    let mut index = 0;
 
-    let parsed = examples.iter()
-    	.map(|v| todo::Todo::parse(v))
-    	.filter(|v| v.is_some())
-    	.collect::<Vec<Option<todo::Todo>>>();
+    for t in &tfile.todos {
+        if let Some(ti) = t {
+            let mut out = Vec::new();
 
-    for example in parsed.iter() {
-        match example {
-	        None => println!("Could not parse"),
-	        Some(task) => println!("{:?}", task),
-        };
-    }
+            index += 1;
 
-    let f = todo_file::TodoFile::parse("/home/jeremy/.todo-txt/todo.txt");
-    match f {
-        Ok(parsed_file) => for t in parsed_file.todos {
-            println!("{:?}", t);
-        },
-        _ => println!("Couldn't parse file"),
+            match ti.priority {
+                Some(p) => out.push(format!("({})", p)),
+                None => out.push(String::from("   ")),
+            }
+
+            out.push(ti.task.clone());
+
+            println!("{}: {}", index, out.join(" "));
+        }
     }
 }
 
+fn main() {
+    let opts = MyOptions::parse_args_default_or_exit();
+    
+    if opts.verbose {
+        println!("File: {}", TODO_FILE);
+        println!("");
+    }
+
+    let f = TodoFile::parse(TODO_FILE);
+    match f {
+        Ok(parsed_file) => ls(&parsed_file),
+        _ => println!("Couldn't parse file"),
+    }
+}
