@@ -11,8 +11,8 @@ pub fn execute(opts: &Opts) {
   let todos = &mut parse_todos_from_default_file()
     .expect("Could not parse todos from default file");
 
-  if let Some(elem) = todos.get_mut(opts.id - 1) {
-    elem.is_complete = true;
+  if let Some(elem) = todos.get_mut(opts.id) {
+    elem.is_complete = !elem.is_complete;
   }
 
   write_todos_to_default_file(&todos)
