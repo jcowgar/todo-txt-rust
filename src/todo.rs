@@ -100,34 +100,34 @@ impl Todo {
 
   /// Compare two Todo structures by priority and task title
   pub fn cmp(&self, b: &Todo) -> Ordering {
-    if self.priority.is_none() && b.priority.is_none() {
-      if self.is_complete == b.is_complete {
-        self.task.cmp(&b.task)
-      } else if self.is_complete {
+    if self.is_complete == b.is_complete {
+      if self.priority.is_none() && b.priority.is_none() {
+        return self.task.cmp(&b.task);
+      } else if self.priority.is_none() {
         return Ordering::Greater;
-      } else {
+      } else if b.priority.is_none() {
         return Ordering::Less;
-      }
-    } else if self.priority.is_none() {
-      Ordering::Greater
-    } else if b.priority.is_none() {
-      Ordering::Less
-    } else {
-      let apri = self.priority.unwrap();
-      let bpri = b.priority.unwrap();
-      let priority_result = apri.cmp(&bpri);
-
-      if priority_result == Ordering::Equal {
-        if self.is_complete == b.is_complete {
-          return self.task.cmp(&b.task);
-        } else if self.is_complete {
-          return Ordering::Greater;
-        } else {
-          return Ordering::Less;
-        }
       } else {
-        priority_result
+        let apri = self.priority.unwrap();
+        let bpri = b.priority.unwrap();
+        let priority_result = apri.cmp(&bpri);
+
+        if priority_result == Ordering::Equal {
+          if self.is_complete == b.is_complete {
+            return self.task.cmp(&b.task);
+          } else if self.is_complete {
+            return Ordering::Greater;
+          } else {
+            return Ordering::Less;
+          }
+        } else {
+          return priority_result;
+        }
       }
+    } else if self.is_complete {
+      return Ordering::Greater;
+    } else {
+      return Ordering::Less;
     }
   }
 
