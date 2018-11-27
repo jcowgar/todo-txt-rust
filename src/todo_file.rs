@@ -6,7 +6,7 @@ use std::io::BufReader;
 
 use todo::Todo;
 
-#[cfg(target_family = "linux")]
+#[cfg(target_family = "unix")]
 const TODO_FILE: &str = "~/.todo-txt/todo.txt";
 
 #[cfg(target_family = "windows")]
@@ -14,7 +14,7 @@ const TODO_FILE: &str = "\\Users\\jerem\\.todo-txt\\todo.txt";
 
 #[derive(Debug)]
 /// File containing many Todo's
-/// 
+///
 /// See <Todo>
 pub struct TodoFile {
     /// Filename of todo file
