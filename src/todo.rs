@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::cmp::Ordering;
+
 use regex::Regex;
 
 lazy_static! {
@@ -55,6 +57,43 @@ impl Todo {
   	    contexts,
   	    key_values,
   	})
+  }
+
+  pub fn cmp(&self, b: &Todo) -> Ordering {
+    if self.priority.is_none() && b.priority.is_none() {
+        self.task.cmp(&b.task)
+    } else if self.priority.is_none() {
+        Ordering::Greater
+    } else if b.priority.is_none() {
+        Ordering::Less
+    } else {
+        let apri = self.priority.unwrap();
+        let bpri = b.priority.unwrap();
+        let priority_result = apri.cmp(&bpri);
+
+        if priority_result == Ordering::Equal {
+            return self.task.cmp(&b.task)
+        } else {
+            priority_result
+        }
+    }
+  }
+
+  pub fn cmp_by_title(&self, b: &Todo) -> Ordering {
+    self.task.cmp(&b.task)
+  }
+}
+
+impl Clone for Todo {
+  fn clone(&self) -> Todo {
+    Todo {
+      is_complete: self.is_complete,
+      task: self.task.clone(),
+      priority: self.priority,
+      projects: self.projects.clone(),
+      contexts: self.contexts.clone(),
+      key_values: self.key_values.clone(),
+    }
   }
 }
 
