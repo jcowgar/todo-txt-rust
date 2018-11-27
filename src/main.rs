@@ -1,4 +1,5 @@
-#[macro_use] extern crate lazy_static;
+#[macro_use]
+extern crate lazy_static;
 extern crate gumdrop;
 extern crate regex;
 
@@ -6,6 +7,7 @@ use gumdrop::Options;
 
 mod todo;
 mod todo_file;
+mod cmd_ls;
 
 use todo_file::TodoFile;
 
@@ -17,35 +19,56 @@ const TODO_FILE: &str = "\\Users\\jerem\\.todo-txt\\todo.txt";
 
 #[derive(Debug, Options)]
 struct MyOptions {
-    #[options(free)]
-    free: Vec<String>,
-
     #[options(help = "Print help message")]
     help: bool,
 
     #[options(help = "Verbose output")]
     verbose: bool,
+
+    #[options(command)]
+    command: Option<Command>,
 }
 
-fn ls(tfile: &TodoFile) {
-    let mut index = 0;
+#[derive(Debug, Options)]
+enum Command {
+    #[options(help = "Show help for a command")]
+    Help(HelpOpts),
 
-    for t in &tfile.todos {
-        if let Some(ti) = t {
-            let mut out = Vec::new();
+    #[options(help = "List todos")]
+    Ls(cmd_ls::Opts),
 
-            index += 1;
+    #[options(help = "Add a new todo")]
+    Add(AddOpts),
 
-            match ti.priority {
-                Some(p) => out.push(format!("({})", p)),
-                None => out.push(String::from("   ")),
-            }
+    #[options(help = "Mark a todo as done")]
+    Do(DoOpts),
 
-            out.push(ti.task.clone());
+    #[options(help = "Remove a todo")]
+    Rm(RmOpts),
+}
 
-            println!("{}: {}", index, out.join(" "));
-        }
-    }
+#[derive(Debug, Options)]
+struct HelpOpts {
+    #[options(free)]
+    free: Vec<String>,
+}
+
+#[derive(Debug, Options)]
+struct AddOpts {
+    #[options(help = "Priority of the new todo")]
+    priority: char,
+}
+
+#[derive(Debug, Options)]
+struct DoOpts {
+    #[options(help = "Id of todo to mark complete")]
+    id: i32,
+}
+
+#[derive(Debug, Options)]
+struct RmOpts {
+    #[options(help = "Id of todo to remove")]
+    id: i32,
 }
 
 fn main() {
@@ -57,8 +80,15 @@ fn main() {
     }
 
     let f = TodoFile::parse(TODO_FILE);
-    match f {
-        Ok(parsed_file) => ls(&parsed_file),
-        _ => println!("Couldn't parse file"),
+
+    if f.is_err() {
+        return ();
+    }
+
+    let f = f.unwrap();
+
+    match opts.command {
+        Some(Command::Ls(copts)) => cmd_ls::execute(&copts, &f),
+        _ => println!("No command given: {:?}", opts),
     }
 }
