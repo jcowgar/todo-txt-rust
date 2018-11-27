@@ -6,6 +6,9 @@ use std::io::BufReader;
 use todo::Todo;
 
 #[derive(Debug)]
+/// File containing many Todo's
+/// 
+/// See <Todo>
 pub struct TodoFile {
     /// Filename of todo file
     pub filename: String,

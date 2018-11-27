@@ -11,6 +11,9 @@ lazy_static! {
 }
 
 #[derive(Debug)]
+/// Todo item
+/// 
+/// See <TodoFile>
 pub struct Todo {
   /// true if todo item is done.
   pub is_complete: bool,
@@ -68,6 +71,7 @@ impl Todo {
     })
   }
 
+  /// Compare two Todo structures by priority and task title
   pub fn cmp(&self, b: &Todo) -> Ordering {
     if self.priority.is_none() && b.priority.is_none() {
       self.task.cmp(&b.task)
@@ -88,12 +92,14 @@ impl Todo {
     }
   }
 
+  /// Compare two Todo structures by title alone
   pub fn cmp_by_title(&self, b: &Todo) -> Ordering {
     self.task.cmp(&b.task)
   }
 }
 
 impl Clone for Todo {
+  /// Clone a Todo structure
   fn clone(&self) -> Todo {
     Todo {
       is_complete: self.is_complete,
