@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
+extern crate chrono;
 extern crate gumdrop;
 extern crate regex;
 extern crate termcolor;

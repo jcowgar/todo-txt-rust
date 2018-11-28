@@ -76,6 +76,17 @@ pub fn execute(opts: &Opts) {
 
 		out.push(t.task.clone());
 
+		let kv_pairs: Vec<std::string::String> = t
+			.key_values
+			.iter()
+			.map(|(k, v)| format!("{}:{}", k, v))
+			.collect();
+		let kv_pairs_str = kv_pairs.join(" ");
+
+		if kv_pairs_str.len() > 0 {
+			out.push(kv_pairs_str);
+		}
+
 		stdout
 			.set_color(ColorSpec::new().set_fg(Some(color)))
 			.expect("Could not set foreground color");

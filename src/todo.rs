@@ -87,6 +87,9 @@ impl Todo {
 			.name("priority")
 			.map(|p| p.as_str().chars().next().unwrap());
 
+		let task = KEY_VALUES_RE.replace_all(&task, "").to_string();
+		let task = task.trim().to_string();
+
 		Some(Todo {
 			index: 0,
 			is_complete,
@@ -99,7 +102,21 @@ impl Todo {
 	}
 
 	pub fn serialize(&self) -> String {
-		serialize(self.is_complete, &self.task, self.priority)
+		let kv_pairs: Vec<std::string::String> = self
+			.key_values
+			.iter()
+			.map(|(k, v)| format!("{}:{}", k, v))
+			.collect();
+		let kv_pairs_str = kv_pairs.join(" ");
+
+		let result = format!(
+			"{} {}",
+			serialize(self.is_complete, &self.task, self.priority),
+			kv_pairs_str
+		);
+		let result = result.trim().to_string();
+
+		result
 	}
 
 	/// Compare two Todo structures by priority and task title
