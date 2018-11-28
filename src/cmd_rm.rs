@@ -3,29 +3,28 @@ use todo_file::{parse_todos_from_default_file, write_todos_to_default_file};
 
 #[derive(Debug, Options)]
 pub struct Opts {
-    #[options(free)]
-    free: Vec<String>,
+	#[options(free)]
+	free: Vec<String>,
 }
 
 pub fn execute(opts: &Opts) {
-  let todos = &mut parse_todos_from_default_file()
-    .expect("Could not parse todos from default file");
-  
-  let mut indexes_to_remove = Vec::new();
+	let todos =
+		&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
 
-  for id in &opts.free {
-    let iid = id.parse::<usize>().unwrap();
-    if let Some(t) = todos.get_mut(iid - 1) {
-      indexes_to_remove.push(t.index);
-    }
-  }
+	let mut indexes_to_remove = Vec::new();
 
-  indexes_to_remove.sort();
+	for id in &opts.free {
+		let iid = id.parse::<usize>().unwrap();
+		if let Some(t) = todos.get_mut(iid - 1) {
+			indexes_to_remove.push(t.index);
+		}
+	}
 
-  for index in indexes_to_remove.iter().rev() {
-    todos.remove(*index as usize);
-  }
+	indexes_to_remove.sort();
 
-  write_todos_to_default_file(&todos)
-    .expect("Could not write todos to default file");
+	for index in indexes_to_remove.iter().rev() {
+		todos.remove(*index as usize);
+	}
+
+	write_todos_to_default_file(&todos).expect("Could not write todos to default file");
 }
