@@ -12,7 +12,7 @@ lazy_static! {
 pub fn read_config() -> Result<(), Box<Error>> {
 	let mut config_file = dirs::config_dir().unwrap();
 	config_file.push("todo-txt");
-	config_file.push("todo-txt.ini");
+	config_file.push("todo-txt.toml");
 
 	SETTINGS
 		.write()?
