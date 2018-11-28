@@ -5,8 +5,12 @@ extern crate gumdrop;
 extern crate regex;
 extern crate termcolor;
 extern crate dirs;
+extern crate config;
 
 use gumdrop::Options;
+use std::error::Error;
+
+mod cfg;
 
 mod cmd_add;
 mod cmd_archive;
@@ -51,7 +55,9 @@ enum Command {
 	Rm(cmd_rm::Opts),
 }
 
-fn main() {
+fn try_main() -> Result<(), Box<Error>> {
+	cfg::read_config()?;
+
 	let opts = MyOptions::parse_args_default_or_exit();
 
 	match opts.command {
@@ -63,4 +69,10 @@ fn main() {
 		Some(Command::Help(copts)) => cmd_help::execute(&copts),
 		_ => println!("No command given: {:?}", opts),
 	}
+
+	Ok(())
+}
+
+fn main() {
+	try_main().unwrap();
 }

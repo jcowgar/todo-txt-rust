@@ -4,30 +4,16 @@ use std::io;
 use std::io::prelude::Write;
 use std::io::BufRead;
 use std::io::BufReader;
-use std::path::PathBuf;
-use dirs;
 
 use todo::Todo;
-
-fn get_data_path() -> PathBuf {
-	let mut config_dir = dirs::config_dir().unwrap();
-	config_dir.push("todo-txt");
-
-	config_dir
-}
+use cfg::get_data_file;
 
 fn get_todo_filename() -> String {
-	let mut todo_txt_filename = get_data_path();
-	todo_txt_filename.push("todo.txt");
-
-	todo_txt_filename.to_str().unwrap().to_string()
+	get_data_file("todo.txt")
 }
 
 fn get_archive_filename() -> String {
-	let mut archive_filename = get_data_path();
-	archive_filename.push("archive.txt");
-
-	archive_filename.to_str().unwrap().to_string()
+	get_data_file("archive.txt")
 }
 
 pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
