@@ -34,7 +34,7 @@ pub fn execute(opts: &Opts) {
 	for text in &opts.free {
 		todos = todos
 			.into_iter()
-			.filter(|t| t.task.contains(text))
+			.filter(|t| t.serialize().contains(text))
 			.collect();
 	}
 
