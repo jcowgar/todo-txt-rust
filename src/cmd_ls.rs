@@ -24,7 +24,6 @@ pub struct Opts {
 pub fn execute(opts: &Opts) {
     let mut todos = todo_file::parse_todos_from_default_file()
         .expect("Could not parse default todo.txt file");
-    let mut index = 0;
 
     if opts.project.len() > 0 {
         let project_filter = format!("+{}", opts.project);
@@ -71,8 +70,6 @@ pub fn execute(opts: &Opts) {
     for t in todos {
         let mut out = Vec::new();
 
-        index += 1;
-
         let color = match t.is_complete {
             true => Color::Green,
             false => match t.priority {
@@ -99,6 +96,6 @@ pub fn execute(opts: &Opts) {
         stdout.set_color(ColorSpec::new().set_fg(Some(color)))
             .expect("Could not set foreground color");
 
-        println!("{}: {}", index, out.join(" "));
+        println!("{}: {}", t.index + 1, out.join(" "));
     }
 }

@@ -31,6 +31,9 @@ fn serialize(is_complete: bool, task: &str, priority: Option<char>) -> String {
 ///
 /// See <TodoFile>
 pub struct Todo {
+  /// Index of position in the file
+  pub index: u32,
+
   /// true if todo item is done.
   pub is_complete: bool,
 
@@ -85,6 +88,7 @@ impl Todo {
       .map(|p| p.as_str().chars().next().unwrap());
 
     Some(Todo {
+      index: 0,
       is_complete,
       task,
       priority,
@@ -141,6 +145,7 @@ impl Clone for Todo {
   /// Clone a Todo structure
   fn clone(&self) -> Todo {
     Todo {
+      index: self.index,
       is_complete: self.is_complete,
       task: self.task.clone(),
       priority: self.priority,

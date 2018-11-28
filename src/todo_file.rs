@@ -21,7 +21,12 @@ pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
             let lineu = line.unwrap();
             Todo::parse(&lineu)
         }).filter(|t| t.is_some())
-        .map(|t| t.unwrap())
+        .enumerate()
+        .map(|(i, t)| {
+            let mut result = t.unwrap();
+            result.index = i as u32;
+            result
+        })
         .collect();
 
     Ok(todos)
