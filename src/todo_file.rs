@@ -4,20 +4,31 @@ use std::io;
 use std::io::prelude::Write;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::path::PathBuf;
+use dirs;
 
 use todo::Todo;
 
-#[cfg(target_family = "unix")]
-const TODO_FILE: &str = "/Users/jeremy/.todo-txt/todo.txt";
+fn get_data_path() -> PathBuf {
+	let mut config_dir = dirs::config_dir().unwrap();
+	config_dir.push("todo-txt");
 
-#[cfg(target_family = "windows")]
-const TODO_FILE: &str = "\\Users\\jerem\\.todo-txt\\todo.txt";
+	config_dir
+}
 
-#[cfg(target_family = "unix")]
-const ARCHIVE_FILE: &str = "/Users/jeremy/.todo-txt/archive.txt";
+fn get_todo_filename() -> String {
+	let mut todo_txt_filename = get_data_path();
+	todo_txt_filename.push("todo.txt");
 
-#[cfg(target_family = "windows")]
-const ARCHIVE_FILE: &str = "\\Users\\jerem\\.todo-txt\\archive.txt";
+	todo_txt_filename.to_str().unwrap().to_string()
+}
+
+fn get_archive_filename() -> String {
+	let mut archive_filename = get_data_path();
+	archive_filename.push("archive.txt");
+
+	archive_filename.to_str().unwrap().to_string()
+}
 
 pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
 	let f = try!(File::open(filename));
@@ -39,7 +50,7 @@ pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
 }
 
 pub fn parse_todos_from_default_file() -> Result<Vec<Todo>, io::Error> {
-	parse_todos(TODO_FILE)
+	parse_todos(&get_todo_filename())
 }
 
 pub fn write_todos(filename: &str, todos: &Vec<Todo>) -> Result<(), io::Error> {
@@ -55,11 +66,11 @@ pub fn write_todos(filename: &str, todos: &Vec<Todo>) -> Result<(), io::Error> {
 }
 
 pub fn write_todos_to_default_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
-	write_todos(TODO_FILE, todos)
+	write_todos(&get_todo_filename(), todos)
 }
 
 pub fn append_todos_to_archive_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
-	let mut f = OpenOptions::new().append(true).create(true).open(ARCHIVE_FILE)?;
+	let mut f = OpenOptions::new().append(true).create(true).open(&get_archive_filename())?;
 
 	for t in todos {
 		f.write(&format!("{}\n", &t.serialize()).into_bytes())?;

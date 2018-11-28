@@ -4,6 +4,7 @@ extern crate chrono;
 extern crate gumdrop;
 extern crate regex;
 extern crate termcolor;
+extern crate dirs;
 
 use gumdrop::Options;
 
