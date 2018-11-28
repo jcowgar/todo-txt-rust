@@ -18,6 +18,7 @@ mod cmd_do;
 mod cmd_help;
 mod cmd_ls;
 mod cmd_rm;
+mod cmd_tag;
 
 mod todo;
 mod todo_file;
@@ -53,6 +54,9 @@ enum Command {
 
 	#[options(help = "Remove a todo")]
 	Rm(cmd_rm::Opts),
+
+	#[options(help = "Tag a todo")]
+	Tag(cmd_tag::Opts),
 }
 
 fn try_main() -> Result<(), Box<Error>> {
@@ -67,6 +71,7 @@ fn try_main() -> Result<(), Box<Error>> {
 		Some(Command::Add(copts)) => cmd_add::execute(&copts),
 		Some(Command::Archive(copts)) => cmd_archive::execute(&copts),
 		Some(Command::Help(copts)) => cmd_help::execute(&copts),
+		Some(Command::Tag(copts)) => cmd_tag::execute(&copts),
 		_ => println!("No command given: {:?}", opts),
 	}
 
