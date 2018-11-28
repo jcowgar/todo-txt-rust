@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io;
 use std::io::prelude::Write;
 use std::io::BufRead;
@@ -11,6 +12,12 @@ const TODO_FILE: &str = "/Users/jeremy/.todo-txt/todo.txt";
 
 #[cfg(target_family = "windows")]
 const TODO_FILE: &str = "\\Users\\jerem\\.todo-txt\\todo.txt";
+
+#[cfg(target_family = "unix")]
+const ARCHIVE_FILE: &str = "/Users/jeremy/.todo-txt/archive.txt";
+
+#[cfg(target_family = "windows")]
+const ARCHIVE_FILE: &str = "\\Users\\jerem\\.todo-txt\\archive.txt";
 
 pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
 	let f = try!(File::open(filename));
@@ -49,4 +56,16 @@ pub fn write_todos(filename: &str, todos: &Vec<Todo>) -> Result<(), io::Error> {
 
 pub fn write_todos_to_default_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
 	write_todos(TODO_FILE, todos)
+}
+
+pub fn append_todos_to_archive_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
+	let mut f = OpenOptions::new().append(true).create(true).open(ARCHIVE_FILE)?;
+
+	for t in todos {
+		f.write(&format!("{}\n", &t.serialize()).into_bytes())?;
+	}
+
+	f.flush()?;
+
+	Ok(())
 }

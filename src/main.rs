@@ -7,6 +7,7 @@ extern crate termcolor;
 use gumdrop::Options;
 
 mod cmd_add;
+mod cmd_archive;
 mod cmd_do;
 mod cmd_help;
 mod cmd_ls;
@@ -38,6 +39,9 @@ enum Command {
 	#[options(help = "Add a new todo")]
 	Add(cmd_add::Opts),
 
+	#[options(help = "Archive completed todos")]
+	Archive(cmd_archive::Opts),
+
 	#[options(help = "Mark a todo as done")]
 	Do(cmd_do::Opts),
 
@@ -53,6 +57,7 @@ fn main() {
 		Some(Command::Do(copts)) => cmd_do::execute(&copts),
 		Some(Command::Rm(copts)) => cmd_rm::execute(&copts),
 		Some(Command::Add(copts)) => cmd_add::execute(&copts),
+		Some(Command::Archive(copts)) => cmd_archive::execute(&copts),
 		Some(Command::Help(copts)) => cmd_help::execute(&copts),
 		_ => println!("No command given: {:?}", opts),
 	}
