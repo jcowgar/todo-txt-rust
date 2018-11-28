@@ -2,6 +2,8 @@ use gumdrop::Options;
 use todo::Todo;
 use todo_file;
 
+use cfg::get_project_rules;
+
 #[derive(Debug, Options)]
 pub struct Opts {
 	#[options(free)]
@@ -18,7 +20,17 @@ pub fn execute(opts: &Opts) {
 		Some('\0') => None,
 		_ => priority
 	};
-	let t = Todo::new(&task, false, priority);
+	let mut t = Todo::new(&task, false, priority);
+
+	for project in &t.projects {
+		let project_name = project.replace("+", "");
+		let project_rules = get_project_rules(&project_name);
+
+		match project_rules.get("append") {
+			Some(append) => t.task = format!("{} {}", t.task, append),
+			_ => (),
+		}
+	}
 
 	let mut todos =
 		todo_file::parse_todos_from_default_file().expect("Couldn't parse default todo.txt file");

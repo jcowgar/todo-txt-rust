@@ -2,6 +2,7 @@ use config::Config;
 use std::error::Error;
 use std::path::PathBuf;
 use std::sync::RwLock;
+use std::collections::HashMap;
 
 use dirs;
 
@@ -62,5 +63,21 @@ pub fn get_mutually_exclusive_tags() -> Vec<Vec<String>> {
 			}
 		},
 		_ => vec![],
+	}
+}
+
+pub fn get_project_rules(project_name: &str) -> HashMap<String, String> {
+	let key = format!("project_rules.{}", project_name);
+
+	match SETTINGS.read() {
+		Ok(settings) => {
+			let setting = settings.get::<HashMap<String, String>>(&key);
+
+			match setting {
+				Ok(hm) => hm,
+				_ => HashMap::new(),
+			}
+		},
+		_ => HashMap::new(),
 	}
 }
