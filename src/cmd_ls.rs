@@ -16,14 +16,10 @@ pub struct Opts {
 
     #[options(help = "Order by title only")]
     title_order: bool,
+
+    #[options(help = "Limit to only the first X todo items")]
+    limit: usize,
 }
-
-pub fn execute(opts: &Opts) {
-    let f = TodoFile::parse_default();
-
-    if f.is_err() {
-        return ();
-    }
 
 pub fn execute(opts: &Opts) {
     let mut todos = todo_file::parse_todos_from_default_file()
@@ -61,6 +57,13 @@ pub fn execute(opts: &Opts) {
         todos.sort_by(|a, b| a.cmp_by_title(b));
     } else {
         todos.sort_by(|a, b| a.cmp(b));
+    }
+
+    if opts.limit > 0 {
+        todos = todos
+            .into_iter()
+            .take(opts.limit)
+            .collect();
     }
 
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
