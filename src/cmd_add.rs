@@ -14,6 +14,10 @@ pub struct Opts {
 pub fn execute(opts: &Opts) {
 	let task = opts.free.join(" ");
 	let priority = opts.priority.to_uppercase().next();
+	let priority = match priority {
+		Some('\0') => None,
+		_ => priority
+	};
 	let t = Todo::new(&task, false, priority);
 
 	let mut todos =
