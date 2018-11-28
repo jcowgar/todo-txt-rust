@@ -1,6 +1,6 @@
 use gumdrop::Options;
 use todo::Todo;
-use todo_file::TodoFile;
+use todo_file;
 
 #[derive(Debug, Options)]
 pub struct Opts {
@@ -16,16 +16,11 @@ pub fn execute(opts: &Opts) {
   let priority = opts.priority.to_uppercase().next();
   let t = Todo::new(&task, false, priority);
 
-  let f = TodoFile::parse_default();
+  let mut todos = todo_file::parse_todos_from_default_file()
+    .expect("Couldn't parse default todo.txt file");
+ 
+  todos.push(t);
 
-  if f.is_err() {
-      return ();
-  }
-
-  let mut f = f.unwrap();
-
-  f.todos.push(t);
-
-  f.write_default()
-    .expect("Could not write todo.txt file");
+  todo_file::write_todos_to_default_file(&todos)
+    .expect("Couldn't write todos to default todo.txt file");
 }

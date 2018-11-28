@@ -1,5 +1,5 @@
 use gumdrop::Options;
-use todo_file::TodoFile;
+use todo_file;
 
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
@@ -25,10 +25,10 @@ pub fn execute(opts: &Opts) {
         return ();
     }
 
-    let f = f.unwrap();
-
+pub fn execute(opts: &Opts) {
+    let mut todos = todo_file::parse_todos_from_default_file()
+        .expect("Could not parse default todo.txt file");
     let mut index = 0;
-    let mut todos = f.todos.clone();
 
     if opts.project.len() > 0 {
         let project_filter = format!("+{}", opts.project);
