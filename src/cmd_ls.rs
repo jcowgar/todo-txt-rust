@@ -5,11 +5,8 @@ use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 #[derive(Debug, Options)]
 pub struct Opts {
-    #[options(help = "Only todos for a given project")]
-    project: String,
-
-    #[options(help = "Only todos in a given context")]
-    context: String,
+    #[options(free)]
+    free: Vec<String>,
 
     #[options(help = "Only todos at or above a given priority")]
     priority: char,
@@ -25,24 +22,6 @@ pub fn execute(opts: &Opts) {
     let mut todos = todo_file::parse_todos_from_default_file()
         .expect("Could not parse default todo.txt file");
 
-    if opts.project.len() > 0 {
-        let project_filter = format!("+{}", opts.project);
-
-        todos = todos
-            .into_iter()
-            .filter(|t| t.projects.contains(&project_filter))
-            .collect();
-    }
-
-    if opts.context.len() > 0 {
-        let context_filter = format!("@{}", opts.context);
-
-        todos = todos
-            .into_iter()
-            .filter(|t| t.contexts.contains(&context_filter))
-            .collect();
-    }
-
     if opts.priority >= 'A' {
         let priority_ch = opts.priority.to_uppercase().next().unwrap();
 
@@ -50,6 +29,12 @@ pub fn execute(opts: &Opts) {
             .into_iter()
             .filter(|t| t.priority.is_some() && t.priority.unwrap() <= priority_ch)
             .collect();
+    }
+
+    for text in &opts.free {
+        todos = todos.into_iter()
+            .filter(|t| t.task.contains(text))
+            .collect();        
     }
 
     if opts.title_order {
