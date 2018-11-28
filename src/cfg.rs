@@ -49,3 +49,18 @@ pub fn get_data_file(filename: &str) -> String {
 
 	pb.to_str().unwrap().to_string()
 }
+
+pub fn get_mutually_exclusive_tags() -> Vec<Vec<String>> {
+	match SETTINGS.read() {
+		Ok(settings) => {
+			let setting = settings.get::<Vec<Vec<String>>>("mutually_exclusive_tags");
+
+			if setting.is_ok() {
+				setting.unwrap()
+			} else {
+				vec![]
+			}
+		},
+		_ => vec![],
+	}
+}
