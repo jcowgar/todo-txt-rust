@@ -81,6 +81,6 @@ pub fn execute(opts: &Opts) {
         stdout.set_color(ColorSpec::new().set_fg(Some(color)))
             .expect("Could not set foreground color");
 
-        println!("{}: {}", t.index + 1, out.join(" "));
+        println!("{:4}: {}", t.index + 1, out.join(" "));
     }
 }
