@@ -32,9 +32,17 @@ pub fn execute(opts: &Opts) {
 	}
 
 	for text in &opts.free {
+		let mut search_text = text.to_string();
+		let mut compare_result = true;
+
+		if search_text.starts_with("-") {
+			search_text = search_text.replace("-", "");
+			compare_result = false;
+		}
+
 		todos = todos
 			.into_iter()
-			.filter(|t| t.serialize().contains(text))
+			.filter(|t| t.serialize().contains(&search_text) == compare_result)
 			.collect();
 	}
 
