@@ -1,6 +1,6 @@
 use gumdrop::Options;
 use todo::Todo;
-use todo_file;
+use todo_file::append_todo_to_default_file;
 
 use cfg::get_project_rules;
 
@@ -32,11 +32,5 @@ pub fn execute(opts: &Opts) {
 		}
 	}
 
-	let mut todos =
-		todo_file::parse_todos_from_default_file().expect("Couldn't parse default todo.txt file");
-
-	todos.push(t);
-
-	todo_file::write_todos_to_default_file(&todos)
-		.expect("Couldn't write todos to default todo.txt file");
+	append_todo_to_default_file(&t).unwrap();
 }
