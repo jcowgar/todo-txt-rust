@@ -58,6 +58,16 @@ enum Command {
 	Tag(cmd_tag::Opts),
 }
 
+fn usage() {
+	println!("No command given!");
+	println!("");
+	println!("{}", MyOptions::usage());
+	println!("");
+	println!("Available commands:");
+	println!("");
+	println!("{}", MyOptions::command_list().unwrap());
+}
+
 fn try_main() -> Result<(), Box<Error>> {
 	let opts = MyOptions::parse_args_default_or_exit();
 	let config_file = if opts.config.len() > 0 {
@@ -75,7 +85,7 @@ fn try_main() -> Result<(), Box<Error>> {
 		Some(Command::Ls(copts)) => cmd_ls::execute(&copts),
 		Some(Command::Rm(copts)) => cmd_rm::execute(&copts),
 		Some(Command::Tag(copts)) => cmd_tag::execute(&copts),
-		_ => println!("No command given: {:?}", opts),
+		_ => usage(),
 	}
 
 	Ok(())
