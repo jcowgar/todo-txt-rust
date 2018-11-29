@@ -14,6 +14,9 @@ pub struct Opts {
 	#[options(help = "Only todos at or above a given priority [A-Z]")]
 	priority: char,
 
+	#[options(help = "Only todos that are not yet complete")]
+	incomplete_todos_only: bool,
+
 	#[options(help = "Order by title only")]
 	title_order: bool,
 
@@ -31,6 +34,13 @@ pub fn execute(opts: &Opts) {
 		todos = todos
 			.into_iter()
 			.filter(|t| t.priority.is_some() && t.priority.unwrap() <= priority_ch)
+			.collect();
+	}
+
+	if opts.incomplete_todos_only {
+		todos = todos
+			.into_iter()
+			.filter(|t| t.is_complete == false)
 			.collect();
 	}
 
