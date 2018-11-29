@@ -28,6 +28,9 @@ struct MyOptions {
 	#[options(help = "Print help message")]
 	help: bool,
 
+	#[options(help = "Use an alternative configuration file")]
+	config: String,
+
 	#[options(help = "Verbose output")]
 	verbose: bool,
 
@@ -60,9 +63,14 @@ enum Command {
 }
 
 fn try_main() -> Result<(), Box<Error>> {
-	cfg::read_config()?;
-
 	let opts = MyOptions::parse_args_default_or_exit();
+	let config_file = if opts.config.len() > 0 {
+		Some(opts.config.as_str())
+	} else {
+		None
+	};
+
+	cfg::read_config(config_file)?;
 
 	match opts.command {
 		Some(Command::Ls(copts)) => cmd_ls::execute(&copts),

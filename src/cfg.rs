@@ -10,14 +10,21 @@ lazy_static! {
 	static ref SETTINGS: RwLock<Config> = RwLock::new(Config::default());
 }
 
-pub fn read_config() -> Result<(), Box<Error>> {
-	let mut config_file = dirs::config_dir().unwrap();
-	config_file.push("todo-txt");
-	config_file.push("todo-txt.toml");
+pub fn read_config(config_filename: Option<&str>) -> Result<(), Box<Error>> {
+	let real_filename = match config_filename {
+		Some(filename) => filename.to_string(),
+		None => {
+			let mut filename = dirs::config_dir().unwrap();
+			filename.push("todo-txt");
+			filename.push("todo-txt.toml");
+
+			String::from(filename.to_str().unwrap())
+		},
+	};
 
 	SETTINGS
 		.write()?
-		.merge(config::File::with_name(config_file.to_str().unwrap()))?;
+		.merge(config::File::with_name(&real_filename))?;
 
 	Ok(())
 }
