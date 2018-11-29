@@ -20,6 +20,9 @@ pub struct Opts {
 	#[options(help = "Order by title only")]
 	title_order: bool,
 
+	#[options(help = "Order by due date")]
+	due_date_order: bool,
+
 	#[options(help = "Limit to only the first N todo items", meta="N")]
 	limit: usize,
 }
@@ -61,6 +64,8 @@ pub fn execute(opts: &Opts) {
 
 	if opts.title_order {
 		todos.sort_by(|a, b| a.cmp_by_title(b));
+	} else if opts.due_date_order {
+		todos.sort_by(|a, b| a.cmp_by_due_date(b));
 	} else {
 		todos.sort_by(|a, b| a.cmp(b));
 	}

@@ -156,6 +156,27 @@ impl Todo {
 	pub fn cmp_by_title(&self, b: &Todo) -> Ordering {
 		self.task.cmp(&b.task)
 	}
+
+	pub fn cmp_by_due_date(&self, b: &Todo) -> Ordering {
+		let duea = self.key_values.get("due");
+		let dueb = b.key_values.get("due");
+
+		if self.is_complete && !b.is_complete {
+			Ordering::Greater
+		} else if !self.is_complete && b.is_complete {
+			Ordering::Less
+		} else if duea.is_some() && dueb.is_none() {
+			Ordering::Less
+		} else if duea.is_none() && dueb.is_some() {
+			Ordering::Greater
+		} else if duea == dueb {
+			self.cmp(b)
+		} else if duea > dueb {
+			Ordering::Greater
+		} else {
+			Ordering::Less
+		}
+	}
 }
 
 impl Clone for Todo {
