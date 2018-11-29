@@ -6,10 +6,13 @@ use cfg::get_project_rules;
 
 #[derive(Debug, Options)]
 pub struct Opts {
+	#[options(help = "Print help message")]
+	help: bool,
+
 	#[options(free)]
 	free: Vec<String>,
 
-	#[options(help = "Priority of the new todo")]
+	#[options(help = "Priority of the new todo [A-Z]")]
 	priority: char,
 }
 

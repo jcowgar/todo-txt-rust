@@ -15,7 +15,6 @@ mod cfg;
 mod cmd_add;
 mod cmd_archive;
 mod cmd_do;
-mod cmd_help;
 mod cmd_ls;
 mod cmd_rm;
 mod cmd_tag;
@@ -40,9 +39,6 @@ struct MyOptions {
 
 #[derive(Debug, Options)]
 enum Command {
-	#[options(help = "Show help for a command")]
-	Help(cmd_help::Opts),
-
 	#[options(help = "List todos")]
 	Ls(cmd_ls::Opts),
 
@@ -73,12 +69,11 @@ fn try_main() -> Result<(), Box<Error>> {
 	cfg::read_config(config_file)?;
 
 	match opts.command {
-		Some(Command::Ls(copts)) => cmd_ls::execute(&copts),
-		Some(Command::Do(copts)) => cmd_do::execute(&copts),
-		Some(Command::Rm(copts)) => cmd_rm::execute(&copts),
 		Some(Command::Add(copts)) => cmd_add::execute(&copts),
 		Some(Command::Archive(copts)) => cmd_archive::execute(&copts),
-		Some(Command::Help(copts)) => cmd_help::execute(&copts),
+		Some(Command::Do(copts)) => cmd_do::execute(&copts),
+		Some(Command::Ls(copts)) => cmd_ls::execute(&copts),
+		Some(Command::Rm(copts)) => cmd_rm::execute(&copts),
 		Some(Command::Tag(copts)) => cmd_tag::execute(&copts),
 		_ => println!("No command given: {:?}", opts),
 	}

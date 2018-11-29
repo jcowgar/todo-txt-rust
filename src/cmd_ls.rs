@@ -5,16 +5,19 @@ use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 #[derive(Debug, Options)]
 pub struct Opts {
+	#[options(help = "Print help message")]
+	help: bool,
+
 	#[options(free)]
 	free: Vec<String>,
 
-	#[options(help = "Only todos at or above a given priority")]
+	#[options(help = "Only todos at or above a given priority [A-Z]")]
 	priority: char,
 
 	#[options(help = "Order by title only")]
 	title_order: bool,
 
-	#[options(help = "Limit to only the first X todo items")]
+	#[options(help = "Limit to only the first N todo items", meta="N")]
 	limit: usize,
 }
 
