@@ -88,3 +88,15 @@ pub fn get_project_rules(project_name: &str) -> HashMap<String, String> {
 		_ => HashMap::new(),
 	}
 }
+
+pub fn get_auto_archive() -> bool {
+	match SETTINGS.read() {
+		Ok(settings) => {
+			match settings.get_bool("auto_archive") {
+				Ok(value) => value,
+				_ => false,
+			}
+		},
+		_ => false,
+	}
+}
