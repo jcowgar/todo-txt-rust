@@ -5,9 +5,9 @@ use regex::Regex;
 
 lazy_static! {
 		static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
-		static ref PROJECTS_RE:   Regex = Regex::new(r"\+(\w+)").unwrap();
-		static ref CONTEXTS_RE:   Regex = Regex::new(r"@(\w+)").unwrap();
-		static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>\w+):(?P<value>[^\s]+)").unwrap();
+		static ref PROJECTS_RE:   Regex = Regex::new(r"\+([^\s]+)").unwrap();
+		static ref CONTEXTS_RE:   Regex = Regex::new(r"@([^\s]+)").unwrap();
+		static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>[^\s]+):(?P<value>[^\s]+)").unwrap();
 }
 
 fn serialize(is_complete: bool, task: &str, priority: Option<char>) -> String {
