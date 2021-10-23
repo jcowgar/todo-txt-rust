@@ -1,8 +1,11 @@
 use chrono::prelude::*;
 use gumdrop::Options;
 
-use todo_file::{parse_todos_from_default_file, write_todos_to_default_file, append_todo_to_archive_file};
 use cfg::get_auto_archive;
+use cfg::get_log_done_date;
+use todo_file::{
+	append_todo_to_archive_file, parse_todos_from_default_file, write_todos_to_default_file,
+};
 
 #[derive(Debug, Options)]
 pub struct Opts {
@@ -34,7 +37,7 @@ pub fn execute(opts: &Opts) {
 			t.is_complete = !t.is_complete;
 
 			if !opts.no_done {
-				if t.is_complete {
+				if t.is_complete && get_log_done_date() {
 					t.key_values.insert(
 						"done".to_string(),
 						format!("{:04}-{:02}-{:02}", now.year(), now.month(), now.day()),

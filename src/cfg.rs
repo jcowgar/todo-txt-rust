@@ -84,18 +84,26 @@ pub fn get_project_rules(project_name: &str) -> HashMap<String, String> {
 				Ok(hm) => hm,
 				_ => HashMap::new(),
 			}
-		},
+		}
 		_ => HashMap::new(),
 	}
 }
 
 pub fn get_auto_archive() -> bool {
 	match SETTINGS.read() {
-		Ok(settings) => {
-			match settings.get_bool("auto_archive") {
-				Ok(value) => value,
-				_ => false,
-			}
+		Ok(settings) => match settings.get_bool("auto_archive") {
+			Ok(value) => value,
+			_ => false,
+		},
+		_ => false,
+	}
+}
+
+pub fn get_log_done_date() -> bool {
+	match SETTINGS.read() {
+		Ok(settings) => match settings.get_bool("log_done_date") {
+			Ok(value) => value,
+			_ => false,
 		},
 		_ => false,
 	}
