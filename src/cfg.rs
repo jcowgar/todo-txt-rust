@@ -10,7 +10,7 @@ lazy_static! {
 	static ref SETTINGS: RwLock<Config> = RwLock::new(Config::default());
 }
 
-pub fn read_config(config_filename: Option<&str>) -> Result<(), Box<Error>> {
+pub fn read_config(config_filename: Option<&str>) -> Result<(), Box<dyn Error>> {
 	let real_filename = match config_filename {
 		Some(filename) => filename.to_string(),
 		None => {

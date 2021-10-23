@@ -19,7 +19,7 @@ fn get_archive_filename() -> String {
 
 /// Read all todos from `filename`
 pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
-	let f = try!(File::open(filename));
+	let f = File::open(filename)?;
 	let file = BufReader::new(&f);
 	let todos = file
 		.lines()
@@ -47,11 +47,11 @@ pub fn parse_todos_from_default_file() -> Result<Vec<Todo>, io::Error> {
 /// Write all `todos` to `filename`
 ///
 /// Warning: This will overwrite `filename`
-pub fn write_todos(filename: &str, todos: &Vec<Todo>) -> Result<(), io::Error> {
+pub fn write_todos(filename: &str, todos: &[Todo]) -> Result<(), io::Error> {
 	let mut f = File::create(filename)?;
 
 	for t in todos {
-		f.write(&format!("{}\n", &t.serialize()).into_bytes())?;
+		f.write_all(&format!("{}\n", &t.serialize()).into_bytes())?;
 	}
 
 	f.flush()?;
@@ -60,35 +60,30 @@ pub fn write_todos(filename: &str, todos: &Vec<Todo>) -> Result<(), io::Error> {
 }
 
 /// Write all `todos` to the user's default todo.txt file
-pub fn write_todos_to_default_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
+pub fn write_todos_to_default_file(todos: &[Todo]) -> Result<(), io::Error> {
 	write_todos(&get_todo_filename(), todos)
 }
 
-fn append_todos_to_file(todos: &Vec<Todo>, filename: &str) -> Result<(), io::Error> {
+fn append_todos_to_file(todos: &[Todo], filename: &str) -> Result<(), io::Error> {
 	let mut f = OpenOptions::new()
 		.append(true)
 		.create(true)
 		.open(filename)?;
 
 	for t in todos {
-		f.write(&format!("{}\n", t.serialize()).into_bytes())?;
+		f.write_all(&format!("{}\n", t.serialize()).into_bytes())?;
 	}
 
 	Ok(())
 }
 
-/// Append todos to the user's default todo.txt file
-pub fn append_todos_to_default_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
-	append_todos_to_file(todos, &get_todo_filename())
-}
-
 /// Append todos to the user's default archive.txt file
-pub fn append_todos_to_archive_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
+pub fn append_todos_to_archive_file(todos: &[Todo]) -> Result<(), io::Error> {
 	append_todos_to_file(todos, &get_archive_filename())
 }
 
 fn write_todo_to_file(mut f: std::fs::File, todo: &Todo) -> Result<(), io::Error> {
-	f.write(&format!("{}\n", todo.serialize()).into_bytes())?;
+	f.write_all(&format!("{}\n", todo.serialize()).into_bytes())?;
 
 	Ok(())
 }

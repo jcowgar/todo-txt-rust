@@ -60,15 +60,15 @@ enum Command {
 
 fn usage() {
 	println!("No command given!");
-	println!("");
+	println!();
 	println!("{}", MyOptions::usage());
-	println!("");
+	println!();
 	println!("Available commands:");
-	println!("");
+	println!();
 	println!("{}", MyOptions::command_list().unwrap());
 }
 
-fn try_main() -> Result<(), Box<Error>> {
+fn try_main() -> Result<(), Box<dyn Error>> {
 	let opts = MyOptions::parse_args_default_or_exit();
 	let config_file = if opts.config.len() > 0 {
 		Some(opts.config.as_str())

@@ -23,7 +23,7 @@ fn serialize(is_complete: bool, task: &str, priority: Option<char>) -> String {
 
 	out.push(String::from(task));
 
-	out.join(" ").to_string()
+	out.join(" ")
 }
 
 #[derive(Debug)]
@@ -123,11 +123,11 @@ impl Todo {
 	pub fn cmp(&self, b: &Todo) -> Ordering {
 		if self.is_complete == b.is_complete {
 			if self.priority.is_none() && b.priority.is_none() {
-				return self.task.cmp(&b.task);
+				self.task.cmp(&b.task)
 			} else if self.priority.is_none() {
-				return Ordering::Greater;
+				Ordering::Greater
 			} else if b.priority.is_none() {
-				return Ordering::Less;
+				Ordering::Less
 			} else {
 				let apri = self.priority.unwrap();
 				let bpri = b.priority.unwrap();
@@ -135,20 +135,20 @@ impl Todo {
 
 				if priority_result == Ordering::Equal {
 					if self.is_complete == b.is_complete {
-						return self.task.cmp(&b.task);
+						self.task.cmp(&b.task)
 					} else if self.is_complete {
-						return Ordering::Greater;
+						Ordering::Greater
 					} else {
-						return Ordering::Less;
+						Ordering::Less
 					}
 				} else {
-					return priority_result;
+					priority_result
 				}
 			}
 		} else if self.is_complete {
-			return Ordering::Greater;
+			Ordering::Greater
 		} else {
-			return Ordering::Less;
+			Ordering::Less
 		}
 	}
 

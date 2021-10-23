@@ -4,7 +4,7 @@ A todo-txt implementation written in Rust.
 
 # Configuration
 
-todo-txt-rust uses the [[TOML][https://toml.io/]] file format for its
+todo-txt-rust uses the [TOML](https://toml.io/) file format for its
 configuration file.
 
 ## Options
