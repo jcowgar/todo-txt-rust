@@ -6,8 +6,8 @@ use std::io::prelude::Write;
 use std::io::BufRead;
 use std::io::BufReader;
 
-use todo::Todo;
 use cfg::get_data_file;
+use todo::Todo;
 
 fn get_todo_filename() -> String {
 	get_data_file("todo.txt")
@@ -26,13 +26,15 @@ pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
 		.map(|line| {
 			let lineu = line.unwrap();
 			Todo::parse(&lineu)
-		}).filter(|t| t.is_some())
+		})
+		.filter(|t| t.is_some())
 		.enumerate()
 		.map(|(i, t)| {
 			let mut result = t.unwrap();
 			result.index = i as u32;
 			result
-		}).collect();
+		})
+		.collect();
 
 	Ok(todos)
 }
@@ -63,7 +65,10 @@ pub fn write_todos_to_default_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
 }
 
 fn append_todos_to_file(todos: &Vec<Todo>, filename: &str) -> Result<(), io::Error> {
-	let mut f = OpenOptions::new().append(true).create(true).open(filename)?;
+	let mut f = OpenOptions::new()
+		.append(true)
+		.create(true)
+		.open(filename)?;
 
 	for t in todos {
 		f.write(&format!("{}\n", t.serialize()).into_bytes())?;
@@ -74,12 +79,12 @@ fn append_todos_to_file(todos: &Vec<Todo>, filename: &str) -> Result<(), io::Err
 
 /// Append todos to the user's default todo.txt file
 pub fn append_todos_to_default_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
-    append_todos_to_file(todos, &get_todo_filename())
+	append_todos_to_file(todos, &get_todo_filename())
 }
 
 /// Append todos to the user's default archive.txt file
 pub fn append_todos_to_archive_file(todos: &Vec<Todo>) -> Result<(), io::Error> {
-    append_todos_to_file(todos, &get_archive_filename())
+	append_todos_to_file(todos, &get_archive_filename())
 }
 
 fn write_todo_to_file(mut f: std::fs::File, todo: &Todo) -> Result<(), io::Error> {
@@ -90,7 +95,10 @@ fn write_todo_to_file(mut f: std::fs::File, todo: &Todo) -> Result<(), io::Error
 
 /// Append a single todo to `filename`
 pub fn append_todo_to_file(todo: &Todo, filename: &str) -> Result<(), io::Error> {
-	let f = OpenOptions::new().append(true).create(true).open(filename)?;
+	let f = OpenOptions::new()
+		.append(true)
+		.create(true)
+		.open(filename)?;
 
 	write_todo_to_file(f, todo)?;
 

@@ -23,7 +23,7 @@ pub struct Opts {
 	#[options(help = "Order by due date")]
 	due_date_order: bool,
 
-	#[options(help = "Limit to only the first N todo items", meta="N")]
+	#[options(help = "Limit to only the first N todo items", meta = "N")]
 	limit: usize,
 }
 

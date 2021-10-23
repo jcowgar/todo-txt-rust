@@ -21,7 +21,7 @@ pub fn execute(opts: &Opts) {
 	let priority = opts.priority.to_uppercase().next();
 	let priority = match priority {
 		Some('\0') => None,
-		_ => priority
+		_ => priority,
 	};
 	let mut t = Todo::new(&task, false, priority);
 

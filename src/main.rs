@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate lazy_static;
 extern crate chrono;
+extern crate config;
+extern crate dirs;
 extern crate gumdrop;
 extern crate regex;
 extern crate termcolor;
-extern crate dirs;
-extern crate config;
 
 use gumdrop::Options;
 use std::error::Error;

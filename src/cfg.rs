@@ -1,8 +1,8 @@
 use config::Config;
+use std::collections::HashMap;
 use std::error::Error;
 use std::path::PathBuf;
 use std::sync::RwLock;
-use std::collections::HashMap;
 
 use dirs;
 
@@ -19,7 +19,7 @@ pub fn read_config(config_filename: Option<&str>) -> Result<(), Box<Error>> {
 			filename.push("todo-txt.toml");
 
 			String::from(filename.to_str().unwrap())
-		},
+		}
 	};
 
 	SETTINGS
@@ -46,8 +46,8 @@ fn get_data_path() -> PathBuf {
 			}
 
 			get_default_data_path()
-		},
-		_ => get_default_data_path()
+		}
+		_ => get_default_data_path(),
 	}
 }
 
@@ -68,7 +68,7 @@ pub fn get_mutually_exclusive_tags() -> Vec<Vec<String>> {
 			} else {
 				vec![]
 			}
-		},
+		}
 		_ => vec![],
 	}
 }

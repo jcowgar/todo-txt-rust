@@ -15,7 +15,7 @@ pub fn execute(opts: &Opts) {
 	let mut free_it = opts.free.iter();
 	let tag_name = match free_it.next() {
 		Some(v) => v,
-		None => panic!("No tag name given!")
+		None => panic!("No tag name given!"),
 	};
 	let tag_name_formatted = format!(" #{}", tag_name);
 	let mutually_exclusive_tags: Vec<Vec<String>> = get_mutually_exclusive_tags()
