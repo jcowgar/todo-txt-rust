@@ -1,8 +1,8 @@
-use chrono::prelude::*;
+use chrono::Local;
 use gumdrop::Options;
 
 use cfg::get_auto_archive;
-use cfg::get_log_done_date;
+use cfg::get_log_complete_date;
 use todo_file::{
 	append_todo_to_archive_file, parse_todos_from_default_file, write_todos_to_default_file,
 };
@@ -15,15 +15,11 @@ pub struct Opts {
 	#[options(free)]
 	free: Vec<String>,
 
-	#[options(help = "Do not add a done key/value pair")]
-	no_done: bool,
-
 	#[options(help = "Archive todo item once markd done")]
 	archive: bool,
 }
 
 pub fn execute(opts: &Opts) {
-	let now = Local::now();
 	let should_archive = opts.archive || get_auto_archive();
 	let todos =
 		&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
@@ -36,15 +32,10 @@ pub fn execute(opts: &Opts) {
 		if let Some(t) = todos.get_mut(iid - 1) {
 			t.is_complete = !t.is_complete;
 
-			if !opts.no_done {
-				if t.is_complete && get_log_done_date() {
-					t.key_values.insert(
-						"done".to_string(),
-						format!("{:04}-{:02}-{:02}", now.year(), now.month(), now.day()),
-					);
-				} else {
-					t.key_values.remove(&"done".to_string());
-				}
+			if t.is_complete && get_log_complete_date() {
+				t.completed_at = Some(Local::today().naive_local());
+			} else {
+				t.completed_at = None;
 			}
 
 			if t.is_complete && should_archive {

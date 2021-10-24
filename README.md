@@ -13,10 +13,14 @@ configuration file.
 
 Path to store `todo.txt` and `archive.txt` files.
 
-### log_done_date : boolean
+### log_create_date : boolean
 
-When marking a task complete, add a done:YYYY-MM-DD key-value pair
-to the task.
+When creating a task store the create date of the task
+
+### log_complete_date : boolean
+
+When completing a task, store the complete date of the task. /Note:/
+`log_create_date` must be enabled for this to work properly.
 
 ### auto_archive : boolean
 

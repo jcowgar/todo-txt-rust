@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -10,15 +11,27 @@ lazy_static! {
 		static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>[^\s]+):(?P<value>[^\s]+)").unwrap();
 }
 
-fn serialize(is_complete: bool, task: &str, priority: Option<char>) -> String {
+fn serialize(
+	is_complete: bool,
+	created_at: Option<NaiveDate>,
+	completed_at: Option<NaiveDate>,
+	task: &str,
+	priority: Option<char>,
+) -> String {
 	let mut out = Vec::new();
 
 	if is_complete {
 		out.push(String::from("x"));
+	} else if let Some(p) = priority {
+		out.push(format!("({})", p));
 	}
 
-	if let Some(p) = priority {
-		out.push(format!("({})", p));
+	if let Some(d) = completed_at {
+		out.push(d.format("%Y-%m-%d").to_string());
+	}
+
+	if let Some(d) = created_at {
+		out.push(d.format("%Y-%m-%d").to_string());
 	}
 
 	out.push(String::from(task));
@@ -37,6 +50,12 @@ pub struct Todo {
 	/// true if todo item is done.
 	pub is_complete: bool,
 
+	/// Date the task was created
+	pub created_at: Option<NaiveDate>,
+
+	/// Date the task was completed
+	pub completed_at: Option<NaiveDate>,
+
 	/// Task title
 	pub task: String,
 
@@ -54,13 +73,6 @@ pub struct Todo {
 }
 
 impl Todo {
-	pub fn new(task: &str, is_complete: bool, priority: Option<char>) -> Todo {
-		let serialized = serialize(is_complete, task, priority);
-		let result = Todo::parse(&serialized);
-
-		result.unwrap()
-	}
-
 	/// Create a new Todo structure from the given raw line.
 	///
 	/// The method may return None, if the line could not be parsed.
@@ -70,6 +82,27 @@ impl Todo {
 			None => return None,
 			Some(t) => String::from(t.as_str()),
 		};
+		let date1 = match m.name("date1") {
+			None => None,
+			Some(t) => match NaiveDate::parse_from_str(t.as_str(), "%Y-%m-%d") {
+				Err(e) => {
+					println!("error parsing date1: '{}', {}", t.as_str(), e);
+					None
+				}
+				Ok(t) => Some(t),
+			},
+		};
+		let date2 = match m.name("date2") {
+			None => None,
+			Some(t) => match NaiveDate::parse_from_str(t.as_str(), "%Y-%m-%d") {
+				Err(e) => {
+					println!("error parsing date2: '{}' {}", t.as_str(), e);
+					None
+				}
+				Ok(t) => Some(t),
+			},
+		};
+
 		let projects = PROJECTS_RE
 			.captures_iter(&task)
 			.map(|cap| String::from(&cap[0]))
@@ -86,12 +119,22 @@ impl Todo {
 		let priority = m
 			.name("priority")
 			.map(|p| p.as_str().chars().next().unwrap());
+		let created_at = match date2 {
+			None => date1,
+			Some(_) => date2,
+		};
+		let completed_at = match date2 {
+			None => None,
+			Some(_) => date1,
+		};
 
 		let task = KEY_VALUES_RE.replace_all(&task, "").to_string();
 		let task = task.trim().to_string();
 
 		Some(Todo {
 			index: 0,
+			created_at,
+			completed_at,
 			is_complete,
 			task,
 			priority,
@@ -102,8 +145,15 @@ impl Todo {
 	}
 
 	pub fn serialize(&self) -> String {
-		let kv_pairs: Vec<std::string::String> = self
-			.key_values
+		let mut serialize_kv_pairs = self.key_values.clone();
+
+		if self.is_complete {
+			if let Some(t) = self.priority {
+				serialize_kv_pairs.insert("pri".to_string(), format!("{}", t));
+			}
+		}
+
+		let kv_pairs: Vec<std::string::String> = serialize_kv_pairs
 			.iter()
 			.map(|(k, v)| format!("{}:{}", k, v))
 			.collect();
@@ -111,7 +161,13 @@ impl Todo {
 
 		let result = format!(
 			"{} {}",
-			serialize(self.is_complete, &self.task, self.priority),
+			serialize(
+				self.is_complete,
+				self.created_at,
+				self.completed_at,
+				&self.task,
+				self.priority
+			),
 			kv_pairs_str
 		);
 		let result = result.trim().to_string();
@@ -185,6 +241,8 @@ impl Clone for Todo {
 		Todo {
 			index: self.index,
 			is_complete: self.is_complete,
+			created_at: self.created_at.clone(),
+			completed_at: self.completed_at.clone(),
 			task: self.task.clone(),
 			priority: self.priority,
 			projects: self.projects.clone(),
@@ -203,8 +261,8 @@ mod tests {
 		let t = Todo::parse("Say hello to mom").unwrap();
 
 		assert_eq!(t.task, "Say hello to mom");
-		assert_eq!(t.is_complete, false);
-		assert_eq!(t.priority.is_none(), true);
+		assert!(!t.is_complete, "should not be completed");
+		assert!(t.priority.is_none(), "should not have a priority");
 		assert_eq!(t.projects.len(), 0);
 		assert_eq!(t.contexts.len(), 0);
 	}
@@ -213,7 +271,7 @@ mod tests {
 	fn parse_completed_todo() {
 		let t = Todo::parse("x Say hello to mom").unwrap();
 
-		assert_eq!(t.is_complete, true);
+		assert!(t.is_complete, "should be complete");
 	}
 
 	#[test]
@@ -243,10 +301,68 @@ mod tests {
 	fn parse_todo_with_key_value_pairs() {
 		let t = Todo::parse("Say hello to mom due:2018-12-25 time:1am").unwrap();
 
-		assert_eq!(t.key_values.contains_key("due"), true);
+		assert!(t.key_values.contains_key("due"), "should contain a due key");
 		assert_eq!(t.key_values.get("due"), Some(&String::from("2018-12-25")));
 
-		assert_eq!(t.key_values.contains_key("time"), true);
+		assert!(
+			t.key_values.contains_key("time"),
+			"should contain a time key"
+		);
 		assert_eq!(t.key_values.get("time"), Some(&String::from("1am")));
+	}
+
+	#[test]
+	fn parse_todo_with_create_date() {
+		let t = Todo::parse("2021-01-01 happy new year!").unwrap();
+
+		assert_eq!(
+			t.created_at.unwrap().format("%Y-%m-%d").to_string(),
+			"2021-01-01"
+		);
+		assert_eq!(t.completed_at, None, "completed_at should be None");
+	}
+
+	#[test]
+	fn parse_todo_with_create_and_complete_date() {
+		let t = Todo::parse("x 2021-01-02 2021-01-01 happy new year!").unwrap();
+
+		assert_eq!(
+			t.created_at.unwrap().format("%Y-%m-%d").to_string(),
+			"2021-01-01"
+		);
+		assert_eq!(
+			t.completed_at.unwrap().format("%Y-%m-%d").to_string(),
+			"2021-01-02"
+		);
+	}
+
+	fn serialize_test(val: &str) {
+		let t = Todo::parse(val).unwrap();
+		assert_eq!(t.serialize(), val);
+	}
+
+	#[test]
+	fn serialize_simple() {
+		serialize_test("hello world");
+	}
+
+	#[test]
+	fn serialize_completed_todo() {
+		serialize_test("x hello world");
+	}
+
+	#[test]
+	fn serialize_todo_with_create_date() {
+		serialize_test("2021-01-01 hello world");
+	}
+
+	#[test]
+	fn serialize_todo_with_priority_and_create_date() {
+		serialize_test("(A) 2021-01-01 hello world");
+	}
+
+	#[test]
+	fn serialize_todo_with_create_and_complete_date() {
+		serialize_test("x 2021-01-02 2021-01-01 hello world");
 	}
 }

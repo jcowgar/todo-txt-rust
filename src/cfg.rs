@@ -36,6 +36,16 @@ fn get_default_data_path() -> PathBuf {
 	config_dir
 }
 
+fn get_bool(name: &str) -> bool {
+	match SETTINGS.read() {
+		Ok(settings) => match settings.get_bool(name) {
+			Ok(value) => value,
+			_ => false,
+		},
+		_ => false,
+	}
+}
+
 fn get_data_path() -> PathBuf {
 	match SETTINGS.read() {
 		Ok(settings) => {
@@ -90,21 +100,13 @@ pub fn get_project_rules(project_name: &str) -> HashMap<String, String> {
 }
 
 pub fn get_auto_archive() -> bool {
-	match SETTINGS.read() {
-		Ok(settings) => match settings.get_bool("auto_archive") {
-			Ok(value) => value,
-			_ => false,
-		},
-		_ => false,
-	}
+	get_bool("auto_archive")
 }
 
-pub fn get_log_done_date() -> bool {
-	match SETTINGS.read() {
-		Ok(settings) => match settings.get_bool("log_done_date") {
-			Ok(value) => value,
-			_ => false,
-		},
-		_ => false,
-	}
+pub fn get_log_create_date() -> bool {
+	get_bool("log_create_date")
+}
+
+pub fn get_log_complete_date() -> bool {
+	get_bool("log_complete_date")
 }
