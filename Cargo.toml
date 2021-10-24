@@ -4,10 +4,10 @@ version = "0.1.0"
 authors = ["Jeremy Cowgar <jeremy@cowgar.com>"]
 
 [dependencies]
-regex = "1"
-lazy_static = "1.2.0"
-gumdrop = "0.5.0"
-termcolor = "1"
 chrono = "0.4"
-dirs = "1.0.4"
-config = "0.9.1"
+config = "0.11"
+dirs = "4.0"
+gumdrop = "0.8"
+lazy_static = "1.2"
+regex = "1"
+termcolor = "1"
