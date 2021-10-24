@@ -1,5 +1,5 @@
+use crate::todo_file::{parse_todos_from_default_file, write_todos_to_default_file};
 use gumdrop::Options;
-use todo_file::{parse_todos_from_default_file, write_todos_to_default_file};
 
 #[derive(Debug, Options)]
 pub struct Opts {

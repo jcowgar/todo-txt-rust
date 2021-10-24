@@ -1,11 +1,10 @@
-use chrono::Local;
-use gumdrop::Options;
-
-use cfg::get_auto_archive;
-use cfg::get_log_complete_date;
-use todo_file::{
+use crate::cfg::get_auto_archive;
+use crate::cfg::get_log_complete_date;
+use crate::todo_file::{
 	append_todo_to_archive_file, parse_todos_from_default_file, write_todos_to_default_file,
 };
+use chrono::Local;
+use gumdrop::Options;
 
 #[derive(Debug, Options)]
 pub struct Opts {

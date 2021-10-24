@@ -1,6 +1,5 @@
+use crate::todo_file;
 use gumdrop::Options;
-use todo_file;
-
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 #[derive(Debug, Options)]

@@ -6,8 +6,8 @@ use std::io::prelude::Write;
 use std::io::BufRead;
 use std::io::BufReader;
 
-use cfg::get_data_file;
-use todo::Todo;
+use crate::cfg::get_data_file;
+use crate::todo::Todo;
 
 fn get_todo_filename() -> String {
 	get_data_file("todo.txt")

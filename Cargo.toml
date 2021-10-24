@@ -2,6 +2,7 @@
 name = "todo-txt"
 version = "0.1.0"
 authors = ["Jeremy Cowgar <jeremy@cowgar.com>"]
+edition = "2021"
 
 [dependencies]
 chrono = "0.4"
@@ -11,3 +12,4 @@ gumdrop = "0.8"
 lazy_static = "1.2"
 regex = "1"
 termcolor = "1"
+uuid = { version = "0.8", features = ["serde", "v4"] }

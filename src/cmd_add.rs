@@ -1,9 +1,8 @@
+use crate::cfg::{get_log_create_date, get_project_rules};
+use crate::todo::Todo;
+use crate::todo_file::append_todo_to_default_file;
 use chrono::Local;
 use gumdrop::Options;
-use todo::Todo;
-use todo_file::append_todo_to_default_file;
-
-use cfg::{get_log_create_date, get_project_rules};
 
 #[derive(Debug, Options)]
 pub struct Opts {
