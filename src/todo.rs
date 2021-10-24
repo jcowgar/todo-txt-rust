@@ -121,7 +121,7 @@ impl Todo {
 			.map(|cap| (String::from(&cap[1]), String::from(&cap[2])))
 			.collect();
 		let is_complete = m.name("complete").is_some();
-		let priority = m
+		let mut priority = m
 			.name("priority")
 			.map(|p| p.as_str().chars().next().unwrap());
 		let created_at = match date2 {
@@ -140,7 +140,16 @@ impl Todo {
 		} else {
 			Uuid::new_v4()
 		};
+
+		if priority == None {
+			priority = match key_values.get("pri") {
+				Some(v) => Some(v.chars().next().unwrap()),
+				None => None,
+			}
+		}
+
 		key_values.remove("id");
+		key_values.remove("pri");
 
 		let task = KEY_VALUES_RE.replace_all(&task, "").to_string();
 		let task = task.trim().to_string();
