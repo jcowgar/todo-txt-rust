@@ -16,6 +16,7 @@ mod cmd_add;
 mod cmd_archive;
 mod cmd_do;
 mod cmd_ls;
+mod cmd_pri;
 mod cmd_rm;
 mod cmd_tag;
 
@@ -56,6 +57,9 @@ enum Command {
 
 	#[options(help = "Tag a todo")]
 	Tag(cmd_tag::Opts),
+
+	#[options(help = "Change/Set priority of a todo")]
+	Pri(cmd_pri::Opts),
 }
 
 fn usage() {
@@ -85,6 +89,7 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 		Some(Command::Ls(copts)) => cmd_ls::execute(&copts),
 		Some(Command::Rm(copts)) => cmd_rm::execute(&copts),
 		Some(Command::Tag(copts)) => cmd_tag::execute(&copts),
+		Some(Command::Pri(copts)) => cmd_pri::execute(&copts),
 		_ => usage(),
 	}
 
