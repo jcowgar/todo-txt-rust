@@ -2,6 +2,8 @@ use chrono::NaiveDate;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
+use uuid::Uuid;
+
 use regex::Regex;
 
 lazy_static! {
@@ -44,6 +46,9 @@ fn serialize(
 ///
 /// See <TodoFile>
 pub struct Todo {
+	/// UUID uniquely identifying task
+	pub id: Uuid,
+
 	/// Index of position in the file
 	pub index: u32,
 
@@ -111,7 +116,7 @@ impl Todo {
 			.captures_iter(&task)
 			.map(|cap| String::from(&cap[0]))
 			.collect();
-		let key_values = KEY_VALUES_RE
+		let mut key_values: HashMap<String, String> = KEY_VALUES_RE
 			.captures_iter(&task)
 			.map(|cap| (String::from(&cap[1]), String::from(&cap[2])))
 			.collect();
@@ -127,12 +132,22 @@ impl Todo {
 			None => None,
 			Some(_) => date1,
 		};
+		let id = if let Some(v) = key_values.get("id") {
+			match Uuid::parse_str(v) {
+				Err(_) => Uuid::new_v4(),
+				Ok(u) => u,
+			}
+		} else {
+			Uuid::new_v4()
+		};
+		key_values.remove("id");
 
 		let task = KEY_VALUES_RE.replace_all(&task, "").to_string();
 		let task = task.trim().to_string();
 
 		Some(Todo {
 			index: 0,
+			id,
 			created_at,
 			completed_at,
 			is_complete,
@@ -152,6 +167,8 @@ impl Todo {
 				serialize_kv_pairs.insert("pri".to_string(), format!("{}", t));
 			}
 		}
+
+		serialize_kv_pairs.insert("id".to_string(), self.id.to_string());
 
 		let kv_pairs: Vec<std::string::String> = serialize_kv_pairs
 			.iter()
@@ -240,6 +257,7 @@ impl Clone for Todo {
 	fn clone(&self) -> Todo {
 		Todo {
 			index: self.index,
+			id: self.id.clone(),
 			is_complete: self.is_complete,
 			created_at: self.created_at.clone(),
 			completed_at: self.completed_at.clone(),
