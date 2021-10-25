@@ -14,6 +14,7 @@ mod cfg;
 
 mod cmd_add;
 mod cmd_archive;
+mod cmd_clock;
 mod cmd_do;
 mod cmd_ls;
 mod cmd_pri;
@@ -60,6 +61,9 @@ enum Command {
 
 	#[options(help = "Change/Set priority of a todo")]
 	Pri(cmd_pri::Opts),
+
+	#[options(help = "Clock in or out of a todo")]
+	Clock(cmd_clock::Opts),
 }
 
 fn usage() {
@@ -90,6 +94,7 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 		Some(Command::Rm(copts)) => cmd_rm::execute(&copts),
 		Some(Command::Tag(copts)) => cmd_tag::execute(&copts),
 		Some(Command::Pri(copts)) => cmd_pri::execute(&copts),
+		Some(Command::Clock(copts)) => cmd_clock::execute(&copts),
 		_ => usage(),
 	}
 
