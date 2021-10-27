@@ -28,7 +28,7 @@ pub struct Opts {
 	free: Vec<String>,
 }
 
-fn seconds_from_hms(hms: &String) -> i64 {
+pub fn seconds_from_hms(hms: &String) -> i64 {
 	let mut total_seconds: i64 = 0;
 	let matches = HMS_RS.captures(&hms);
 
@@ -49,6 +49,29 @@ fn seconds_from_hms(hms: &String) -> i64 {
 
 	return total_seconds;
 }
+
+pub fn hms_from_seconds(seconds: i64) -> String {
+	let hours = seconds / 3600;
+	let minutes = (seconds - (hours * 3600)) / 60;
+	let seconds = seconds - (hours * 3600) - (minutes * 60);
+
+	let parts: &mut Vec<String> = &mut vec![];
+
+	if hours > 0 {
+		parts.push(format!("{}h", hours));
+	}
+
+	if minutes > 0 {
+		parts.push(format!("{}m", minutes));
+	}
+
+	if seconds > 0 {
+		parts.push(format!("{}s", seconds));
+	}
+
+	return parts.join("");
+}
+
 
 fn set_clocked(todos: &mut Vec<Todo>, ids: &Vec<String>, new_clock: &String) {
 	for id in ids.iter() {
@@ -114,28 +137,6 @@ fn check_into_or_outof(todos: &mut Vec<Todo>, ids: &Vec<String>) {
 			}
 		}
 	}
-}
-
-fn hms_from_seconds(seconds: i64) -> String {
-	let hours = seconds / 3600;
-	let minutes = (seconds - (hours * 3600)) / 60;
-	let seconds = seconds - (hours * 3600) - (minutes * 60);
-
-	let parts: &mut Vec<String> = &mut vec![];
-
-	if hours > 0 {
-		parts.push(format!("{}h", hours));
-	}
-
-	if minutes > 0 {
-		parts.push(format!("{}m", minutes));
-	}
-
-	if seconds > 0 {
-		parts.push(format!("{}s", seconds));
-	}
-
-	return parts.join("");
 }
 
 fn display_clocked_todo_items(todos: &mut Vec<Todo>) {

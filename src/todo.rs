@@ -1,10 +1,12 @@
-use chrono::NaiveDate;
+use chrono::{DateTime, Local, NaiveDate};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use uuid::Uuid;
 
 use regex::Regex;
+
+use crate::cmd_clock;
 
 lazy_static! {
     static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
@@ -200,6 +202,38 @@ impl Todo {
 
 		result
     }
+
+	pub fn has_clock(&self) -> bool {
+		self.key_values.contains_key("clock")
+	}
+
+	pub fn add_to_clocked(&mut self, amount: i64) {
+		let already_clocked = match self.key_values.get("clocked") {
+			None => 0,
+			Some(v) => cmd_clock::seconds_from_hms(v)
+		};
+		let new_clocked = already_clocked + amount;
+
+		self.key_values.insert("clocked".to_string(), cmd_clock::hms_from_seconds(new_clocked));
+	}
+
+	pub fn clock_in(&mut self) {
+		let now = Local::now();
+		self.key_values.insert("clock".to_string(), format!("{}", now.timestamp()));
+	}
+
+	pub fn clock_out(&mut self) {
+		if self.has_clock() == false {
+			return
+		}
+
+		let now = Local::now();
+		let current_clock = self.key_values.get("clock").unwrap().parse::<i64>().unwrap();
+		let elapsed = now.timestamp() - current_clock;
+
+		self.add_to_clocked(elapsed);
+		self.key_values.remove("clock");
+	}
 
     /// Compare two Todo structures by priority and task title
     pub fn cmp(&self, b: &Todo) -> Ordering {

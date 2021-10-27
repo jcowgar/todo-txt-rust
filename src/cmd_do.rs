@@ -31,6 +31,10 @@ pub fn execute(opts: &Opts) {
 		if let Some(t) = todos.get_mut(iid - 1) {
 			t.is_complete = !t.is_complete;
 
+			if t.has_clock() {
+				t.clock_out();
+			}
+
 			if t.is_complete && get_log_complete_date() {
 				t.completed_at = Some(Local::today().naive_local());
 			} else {
