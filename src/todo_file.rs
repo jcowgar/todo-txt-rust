@@ -109,3 +109,14 @@ pub fn append_todo_to_default_file(todo: &Todo) -> Result<(), io::Error> {
 pub fn append_todo_to_archive_file(todo: &Todo) -> Result<(), io::Error> {
 	append_todo_to_file(todo, &get_archive_filename())
 }
+
+/// Get the last inserted task number
+pub fn last_inserted_todo_number() -> Result<i64, io::Error> {
+	let filename = get_todo_filename();
+	let fh = File::open(filename)?;
+
+	let file = BufReader::new(&fh);
+	let lines = file.lines();
+
+	return Ok(lines.count().try_into().unwrap());
+}

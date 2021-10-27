@@ -1,6 +1,6 @@
 use crate::cfg::{get_default_priority, get_log_create_date, get_project_rules};
 use crate::todo::Todo;
-use crate::todo_file::append_todo_to_default_file;
+use crate::todo_file::{append_todo_to_default_file, last_inserted_todo_number};
 use chrono::Local;
 use gumdrop::Options;
 
@@ -17,6 +17,9 @@ pub struct Opts {
 
 	#[options(help = "Clock into newly created todo")]
 	clock_in: bool,
+
+	#[options(help = "Only errors are displayed to console")]
+	quiet: bool,
 }
 
 pub fn execute(opts: &Opts) {
@@ -50,4 +53,11 @@ pub fn execute(opts: &Opts) {
 	}
 
 	append_todo_to_default_file(&t).unwrap();
+
+	if !opts.quiet {
+		match last_inserted_todo_number() {
+			Err(e) => println!("Could not get last inserted todo number: {}", e),
+			Ok(count) => println!("{}", count),
+		}
+	}
 }
