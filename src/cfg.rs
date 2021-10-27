@@ -46,6 +46,16 @@ fn get_bool(name: &str) -> bool {
 	}
 }
 
+fn get_char(name: &str) -> Option<char> {
+	match SETTINGS.read() {
+		Ok(settings) => match settings.get_str(name) {
+			Ok(value) => value.chars().next(),
+			_ => None,
+		},
+		_ => None,
+	}
+}
+
 fn get_data_path() -> PathBuf {
 	match SETTINGS.read() {
 		Ok(settings) => {
@@ -113,4 +123,8 @@ pub fn get_log_complete_date() -> bool {
 
 pub fn get_auto_ls() -> bool {
 	get_bool("auto_ls")
+}
+
+pub fn get_default_priority() -> Option<char> {
+	get_char("default_priority")
 }

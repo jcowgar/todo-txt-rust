@@ -1,4 +1,4 @@
-use crate::cfg::{get_log_create_date, get_project_rules};
+use crate::cfg::{get_default_priority, get_log_create_date, get_project_rules};
 use crate::todo::Todo;
 use crate::todo_file::append_todo_to_default_file;
 use chrono::Local;
@@ -21,7 +21,10 @@ pub struct Opts {
 
 pub fn execute(opts: &Opts) {
 	let mut task = opts.free.join(" ");
-	let priority = opts.priority.to_uppercase().next();
+	let priority = match opts.priority.to_uppercase().next() {
+		None | Some('\0') => get_default_priority(),
+		Some(t) => Some(t),
+	};
 	match priority {
 		None | Some('\0') => {}
 		Some(t) => task = format!("({}) {}", t, task),
