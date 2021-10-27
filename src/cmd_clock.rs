@@ -1,6 +1,6 @@
+use crate::hms;
 use crate::todo::Todo;
 use crate::todo_file::{parse_todos_from_default_file, write_todos_to_default_file};
-use crate::hms;
 
 use chrono::{Local, TimeZone};
 use gumdrop::Options;
@@ -9,6 +9,9 @@ use gumdrop::Options;
 pub struct Opts {
 	#[options(help = "Print help message")]
 	help: bool,
+
+	#[options(help = "Only show time for task #")]
+	only_time: u32,
 
 	#[options(help = "Clear the clock in state of a task")]
 	clear: bool,
@@ -89,7 +92,18 @@ fn check_into_or_outof(todos: &mut Vec<Todo>, ids: &Vec<String>) {
 	}
 }
 
-fn display_clocked_todo_items(todos: &mut Vec<Todo>) {
+fn display_only_time(todos: Vec<Todo>, index: u32) {
+	let todo = todos.iter().find(|v| v.index == index - 1);
+
+	let display = match todo {
+		None => "".to_string(),
+		Some(t) => t.elapsed_time(),
+	};
+
+	println!("{}", display);
+}
+
+fn display_clocked_todo_items(todos: Vec<Todo>) {
 	let now = Local::now();
 
 	for t in todos.iter() {
@@ -108,10 +122,10 @@ fn display_clocked_todo_items(todos: &mut Vec<Todo>) {
 }
 
 pub fn execute(opts: &Opts) {
-	let todos =
-		&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
-
 	if opts.free.len() > 0 {
+		let todos =
+			&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
+
 		if opts.clear {
 			clear_clock(todos, &opts.free);
 		} else if opts.clear_clocked {
@@ -124,6 +138,13 @@ pub fn execute(opts: &Opts) {
 
 		write_todos_to_default_file(&todos).expect("Could not write todos to default file");
 	} else {
-		display_clocked_todo_items(todos);
+		let todos =
+			parse_todos_from_default_file().expect("Could not parse todos from default file");
+
+		if opts.only_time > 0 {
+			display_only_time(todos, opts.only_time);
+		} else {
+			display_clocked_todo_items(todos);
+		}
 	}
 }

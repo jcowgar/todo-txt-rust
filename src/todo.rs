@@ -1,4 +1,4 @@
-use chrono::{Local, NaiveDate};
+use chrono::{Local, NaiveDate, TimeZone};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -247,6 +247,31 @@ impl Todo {
 
 		self.add_to_clocked(elapsed);
 		self.key_values.remove("clock");
+	}
+
+
+	pub fn elapsed_time(&self) -> String {
+		let clocked_time = match self.key_values.get("clocked") {
+			None => 0,
+			Some(t) => hms::to_seconds(t),
+		};
+
+		match self.key_values.get("clock") {
+			None => "".to_string(),
+			Some(clock) => {
+				let now = Local::now();
+
+				let seconds = match clock.parse::<i64>() {
+					Err(_) => 0,
+					Ok(v) => v,
+				};
+
+				let todo_clock_in = Local.timestamp(seconds, 0);
+				let time_diff = now - todo_clock_in;
+
+				hms::from_seconds(time_diff.num_seconds() + clocked_time)
+			}
+		}
 	}
 
     /// Compare two Todo structures by priority and task title
