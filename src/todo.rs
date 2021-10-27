@@ -217,7 +217,7 @@ impl Todo {
 		self.key_values.contains_key("clock")
 	}
 
-	pub fn add_to_clocked(&mut self, amount: i64) {
+	fn add_to_clocked(&mut self, amount: i64) {
 		let already_clocked = match self.key_values.get("clocked") {
 			None => 0,
 			Some(v) => hms::to_seconds(v)

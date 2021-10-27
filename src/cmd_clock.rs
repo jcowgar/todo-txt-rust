@@ -61,35 +61,14 @@ fn clear_clock(todos: &mut Vec<Todo>, ids: &Vec<String>) {
 }
 
 fn check_into_or_outof(todos: &mut Vec<Todo>, ids: &Vec<String>) {
-	let now = Local::now();
-
 	for id in ids.iter() {
 		let iid = id.parse::<usize>().unwrap();
 
 		if let Some(t) = todos.get_mut(iid - 1) {
-			match t.key_values.get("clock") {
-				Some(_) => {
-					let clocked = match t.key_values.get("clocked") {
-						Some(already_clocked) => hms::to_seconds(already_clocked),
-						None => 0,
-					};
-					let clock_secs = match t.key_values.get("clock") {
-						Some(v) => v.parse::<i64>().unwrap(),
-						None => 0,
-					};
-					let todo_clock_in = Local.timestamp(clock_secs, 0);
-					let current_clocked = now - todo_clock_in;
-
-					t.key_values.remove("clock");
-					t.key_values.insert(
-						"clocked".to_string(),
-						hms::from_seconds(clocked + current_clocked.num_seconds()),
-					);
-				}
-				None => {
-					t.key_values
-						.insert("clock".to_string(), format!("{}", now.timestamp()));
-				}
+			if t.has_clock() {
+				t.clock_out();
+			} else {
+				t.clock_in();
 			}
 		}
 	}
