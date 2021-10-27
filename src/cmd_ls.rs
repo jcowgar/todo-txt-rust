@@ -28,6 +28,9 @@ pub struct Opts {
 
 	#[options(help = "Limit to only the first N todo items", meta = "N")]
 	limit: usize,
+
+	#[options(help = "Do not use color output")]
+	no_color: bool,
 }
 
 pub fn default_opts() -> Opts {
@@ -40,6 +43,7 @@ pub fn default_opts() -> Opts {
 		title_order: false,
 		due_date_order: false,
 		limit: 0,
+		no_color: false,
 	}
 }
 
@@ -136,9 +140,11 @@ pub fn execute(opts: &Opts) {
 			out.push(kv_pairs_str);
 		}
 
-		stdout
-			.set_color(ColorSpec::new().set_fg(Some(color)))
-			.expect("Could not set foreground color");
+		if opts.no_color == false {
+			stdout
+				.set_color(ColorSpec::new().set_fg(Some(color)))
+				.expect("Could not set foreground color");
+		}
 
 		println!("{:4}: {}", t.index + 1, out.join(" "));
 	}
