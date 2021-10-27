@@ -23,6 +23,7 @@ mod cmd_tag;
 
 mod todo;
 mod todo_file;
+mod hms;
 
 #[derive(Debug, Options)]
 struct MyOptions {

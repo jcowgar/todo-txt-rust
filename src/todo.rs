@@ -1,4 +1,4 @@
-use chrono::{DateTime, Local, NaiveDate};
+use chrono::{Local, NaiveDate};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use regex::Regex;
 
-use crate::cmd_clock;
+use crate::hms;
 
 lazy_static! {
     static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
@@ -210,11 +210,11 @@ impl Todo {
 	pub fn add_to_clocked(&mut self, amount: i64) {
 		let already_clocked = match self.key_values.get("clocked") {
 			None => 0,
-			Some(v) => cmd_clock::seconds_from_hms(v)
+			Some(v) => hms::to_seconds(v)
 		};
 		let new_clocked = already_clocked + amount;
 
-		self.key_values.insert("clocked".to_string(), cmd_clock::hms_from_seconds(new_clocked));
+		self.key_values.insert("clocked".to_string(), hms::from_seconds(new_clocked));
 	}
 
 	pub fn clock_in(&mut self) {
