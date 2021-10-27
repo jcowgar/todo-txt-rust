@@ -106,7 +106,12 @@ fn display_clocked_todo_items(todos: Vec<Todo>) {
 			let time_diff = now - todo_clock_in;
 			let hms = hms::from_seconds(time_diff.num_seconds());
 
-			println!("{:4}: {:8} {}", t.index + 1, hms, t.task);
+			let clocked_time = match t.key_values.get("clocked") {
+				None => hms,
+				Some(t) => format!("{}/{}", hms, t),
+			};
+
+			println!("{:4}: {:10} {}", t.index + 1, clocked_time, t.task);
 		}
 	}
 }
