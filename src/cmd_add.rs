@@ -14,6 +14,9 @@ pub struct Opts {
 
 	#[options(help = "Priority of the new todo [A-Z]")]
 	priority: char,
+
+	#[options(help = "Clock into newly created todo")]
+	clock_in: bool,
 }
 
 pub fn execute(opts: &Opts) {
@@ -28,6 +31,10 @@ pub fn execute(opts: &Opts) {
 
 	if get_log_create_date() {
 		t.created_at = Some(Local::today().naive_local());
+	}
+
+	if opts.clock_in {
+		t.clock_in();
 	}
 
 	for project in &t.projects {

@@ -218,6 +218,10 @@ impl Todo {
 	}
 
 	pub fn clock_in(&mut self) {
+		if self.has_clock() {
+			return
+		}
+
 		let now = Local::now();
 		self.key_values.insert("clock".to_string(), format!("{}", now.timestamp()));
 	}
