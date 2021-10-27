@@ -7,38 +7,38 @@ use uuid::Uuid;
 use regex::Regex;
 
 lazy_static! {
-		static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
-		static ref PROJECTS_RE:   Regex = Regex::new(r"\+([^\s]+)").unwrap();
-		static ref CONTEXTS_RE:   Regex = Regex::new(r"@([^\s]+)").unwrap();
-		static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>[^\s]+):(?P<value>[^\s]+)").unwrap();
+    static ref PARSE_RE:      Regex = Regex::new(r"^(?P<complete>x )?(?:\((?P<priority>[A-Z])\))?\s*(?P<date1>\d{4}-\d{2}-\d{2})?\s*(?P<date2>\d{4}-\d{2}-\d{2})?\s*(?P<task>.+$)").unwrap();
+    static ref PROJECTS_RE:   Regex = Regex::new(r"\+([^\s]+)").unwrap();
+    static ref CONTEXTS_RE:   Regex = Regex::new(r"@([^\s]+)").unwrap();
+    static ref KEY_VALUES_RE: Regex = Regex::new(r"(?P<key>[^\s]+):(?P<value>[^\s]+)").unwrap();
 }
 
 fn serialize(
-	is_complete: bool,
-	created_at: Option<NaiveDate>,
-	completed_at: Option<NaiveDate>,
-	task: &str,
-	priority: Option<char>,
+    is_complete: bool,
+    created_at: Option<NaiveDate>,
+    completed_at: Option<NaiveDate>,
+    task: &str,
+    priority: Option<char>,
 ) -> String {
-	let mut out = Vec::new();
+    let mut out = Vec::new();
 
-	if is_complete {
+    if is_complete {
 		out.push(String::from("x"));
-	} else if let Some(p) = priority {
+    } else if let Some(p) = priority {
 		out.push(format!("({})", p));
-	}
+    }
 
-	if let Some(d) = completed_at {
+    if let Some(d) = completed_at {
 		out.push(d.format("%Y-%m-%d").to_string());
-	}
+    }
 
-	if let Some(d) = created_at {
+    if let Some(d) = created_at {
 		out.push(d.format("%Y-%m-%d").to_string());
-	}
+    }
 
-	out.push(String::from(task));
+    out.push(String::from(task));
 
-	out.join(" ")
+    out.join(" ")
 }
 
 #[derive(Debug)]
@@ -46,42 +46,42 @@ fn serialize(
 ///
 /// See <TodoFile>
 pub struct Todo {
-	/// UUID uniquely identifying task
-	pub id: Uuid,
+    /// UUID uniquely identifying task
+    pub id: Uuid,
 
-	/// Index of position in the file
-	pub index: u32,
+    /// Index of position in the file
+    pub index: u32,
 
-	/// true if todo item is done.
-	pub is_complete: bool,
+    /// true if todo item is done.
+    pub is_complete: bool,
 
-	/// Date the task was created
-	pub created_at: Option<NaiveDate>,
+    /// Date the task was created
+    pub created_at: Option<NaiveDate>,
 
-	/// Date the task was completed
-	pub completed_at: Option<NaiveDate>,
+    /// Date the task was completed
+    pub completed_at: Option<NaiveDate>,
 
-	/// Task title
-	pub task: String,
+    /// Task title
+    pub task: String,
 
-	/// Priority (if any), A-Z.
-	pub priority: Option<char>,
+    /// Priority (if any), A-Z.
+    pub priority: Option<char>,
 
-	/// Project tags (+Project)
-	pub projects: Vec<String>,
+    /// Project tags (+Project)
+    pub projects: Vec<String>,
 
-	/// Context tags (@context)
-	pub contexts: Vec<String>,
+    /// Context tags (@context)
+    pub contexts: Vec<String>,
 
-	/// Key value attributes (key:value)
-	pub key_values: HashMap<String, String>,
+    /// Key value attributes (key:value)
+    pub key_values: HashMap<String, String>,
 }
 
 impl Todo {
-	/// Create a new Todo structure from the given raw line.
-	///
-	/// The method may return None, if the line could not be parsed.
-	pub fn parse(line: &str) -> Option<Todo> {
+    /// Create a new Todo structure from the given raw line.
+    ///
+    /// The method may return None, if the line could not be parsed.
+    pub fn parse(line: &str) -> Option<Todo> {
 		let m = PARSE_RE.captures(line)?;
 		let task = match m.name("task") {
 			None => return None,
@@ -166,9 +166,9 @@ impl Todo {
 			contexts,
 			key_values,
 		})
-	}
+    }
 
-	pub fn serialize(&self) -> String {
+    pub fn serialize(&self) -> String {
 		let mut serialize_kv_pairs = self.key_values.clone();
 
 		if self.is_complete {
@@ -199,10 +199,10 @@ impl Todo {
 		let result = result.trim().to_string();
 
 		result
-	}
+    }
 
-	/// Compare two Todo structures by priority and task title
-	pub fn cmp(&self, b: &Todo) -> Ordering {
+    /// Compare two Todo structures by priority and task title
+    pub fn cmp(&self, b: &Todo) -> Ordering {
 		if self.is_complete == b.is_complete {
 			if self.priority.is_none() && b.priority.is_none() {
 				self.task.cmp(&b.task)
@@ -232,14 +232,14 @@ impl Todo {
 		} else {
 			Ordering::Less
 		}
-	}
+    }
 
-	/// Compare two Todo structures by title alone
-	pub fn cmp_by_title(&self, b: &Todo) -> Ordering {
+    /// Compare two Todo structures by title alone
+    pub fn cmp_by_title(&self, b: &Todo) -> Ordering {
 		self.task.cmp(&b.task)
-	}
+    }
 
-	pub fn cmp_by_due_date(&self, b: &Todo) -> Ordering {
+    pub fn cmp_by_due_date(&self, b: &Todo) -> Ordering {
 		let duea = self.key_values.get("due");
 		let dueb = b.key_values.get("due");
 
@@ -258,12 +258,12 @@ impl Todo {
 		} else {
 			Ordering::Less
 		}
-	}
+    }
 }
 
 impl Clone for Todo {
-	/// Clone a Todo structure
-	fn clone(&self) -> Todo {
+    /// Clone a Todo structure
+    fn clone(&self) -> Todo {
 		Todo {
 			index: self.index,
 			id: self.id.clone(),
@@ -276,15 +276,15 @@ impl Clone for Todo {
 			contexts: self.contexts.clone(),
 			key_values: self.key_values.clone(),
 		}
-	}
+    }
 }
 
 #[cfg(test)]
 mod tests {
-	use super::*;
+    use super::*;
 
-	#[test]
-	fn parse_simple_todo() {
+    #[test]
+    fn parse_simple_todo() {
 		let t = Todo::parse("Say hello to mom").unwrap();
 
 		assert_eq!(t.task, "Say hello to mom");
@@ -292,40 +292,40 @@ mod tests {
 		assert!(t.priority.is_none(), "should not have a priority");
 		assert_eq!(t.projects.len(), 0);
 		assert_eq!(t.contexts.len(), 0);
-	}
+    }
 
-	#[test]
-	fn parse_completed_todo() {
+    #[test]
+    fn parse_completed_todo() {
 		let t = Todo::parse("x Say hello to mom").unwrap();
 
 		assert!(t.is_complete, "should be complete");
-	}
+    }
 
-	#[test]
-	fn parse_todo_with_priority() {
+    #[test]
+    fn parse_todo_with_priority() {
 		let t = Todo::parse("(A) Say hello to mom").unwrap();
 
 		assert_eq!(t.priority.unwrap(), 'A');
-	}
+    }
 
-	#[test]
-	fn parse_todo_with_projects() {
+    #[test]
+    fn parse_todo_with_projects() {
 		let t = Todo::parse("Say hello to mom +Family").unwrap();
 
 		assert_eq!(t.projects.len(), 1);
 		assert_eq!(t.projects[0], "+Family");
-	}
+    }
 
-	#[test]
-	fn parse_todo_with_contexts() {
+    #[test]
+    fn parse_todo_with_contexts() {
 		let t = Todo::parse("Say hello to mom @phone").unwrap();
 
 		assert_eq!(t.contexts.len(), 1);
 		assert_eq!(t.contexts[0], "@phone");
-	}
+    }
 
-	#[test]
-	fn parse_todo_with_key_value_pairs() {
+    #[test]
+    fn parse_todo_with_key_value_pairs() {
 		let t = Todo::parse("Say hello to mom due:2018-12-25 time:1am").unwrap();
 
 		assert!(t.key_values.contains_key("due"), "should contain a due key");
@@ -336,10 +336,10 @@ mod tests {
 			"should contain a time key"
 		);
 		assert_eq!(t.key_values.get("time"), Some(&String::from("1am")));
-	}
+    }
 
-	#[test]
-	fn parse_todo_with_create_date() {
+    #[test]
+    fn parse_todo_with_create_date() {
 		let t = Todo::parse("2021-01-01 happy new year!").unwrap();
 
 		assert_eq!(
@@ -347,10 +347,10 @@ mod tests {
 			"2021-01-01"
 		);
 		assert_eq!(t.completed_at, None, "completed_at should be None");
-	}
+    }
 
-	#[test]
-	fn parse_todo_with_create_and_complete_date() {
+    #[test]
+    fn parse_todo_with_create_and_complete_date() {
 		let t = Todo::parse("x 2021-01-02 2021-01-01 happy new year!").unwrap();
 
 		assert_eq!(
@@ -361,35 +361,44 @@ mod tests {
 			t.completed_at.unwrap().format("%Y-%m-%d").to_string(),
 			"2021-01-02"
 		);
-	}
+    }
 
-	fn serialize_test(val: &str) {
+    fn serialize_test(val: &str) {
 		let t = Todo::parse(val).unwrap();
-		assert_eq!(t.serialize(), val);
-	}
 
-	#[test]
-	fn serialize_simple() {
+		// Need to remove the automatically added id:xyz before
+		// comparing to the original source. Since these are random
+		// ids, it's hard to test against with the content being
+		// part of the task string.
+		let remove_id_re = Regex::new(r"\sid:[^\s]+").unwrap();
+		let serialized = t.serialize();
+		let serialized_id_removed = remove_id_re.replace_all(&serialized, "");
+
+		assert_eq!(serialized_id_removed, val);
+    }
+
+    #[test]
+    fn serialize_simple() {
 		serialize_test("hello world");
-	}
+    }
 
-	#[test]
-	fn serialize_completed_todo() {
+    #[test]
+    fn serialize_completed_todo() {
 		serialize_test("x hello world");
-	}
+    }
 
-	#[test]
-	fn serialize_todo_with_create_date() {
+    #[test]
+    fn serialize_todo_with_create_date() {
 		serialize_test("2021-01-01 hello world");
-	}
+    }
 
-	#[test]
-	fn serialize_todo_with_priority_and_create_date() {
+    #[test]
+    fn serialize_todo_with_priority_and_create_date() {
 		serialize_test("(A) 2021-01-01 hello world");
-	}
+    }
 
-	#[test]
-	fn serialize_todo_with_create_and_complete_date() {
+    #[test]
+    fn serialize_todo_with_create_and_complete_date() {
 		serialize_test("x 2021-01-02 2021-01-01 hello world");
-	}
+    }
 }
