@@ -19,8 +19,11 @@ pub struct Opts {
 	#[options(help = "Clear the clocked time on a task")]
 	clear_clocked: bool,
 
+	#[options(help = "Clock out of all tasks")]
+	out_of_all: bool,
+
 	#[options(help = "Set clocked time on a task")]
-	set_clocked_time: String,
+	set_time: String,
 
 	#[options(free)]
 	free: Vec<String>,
@@ -92,6 +95,14 @@ fn check_into_or_outof(todos: &mut Vec<Todo>, ids: &Vec<String>) {
 	}
 }
 
+fn clock_out_of_all(todos: &mut Vec<Todo>){
+	for t in todos.iter_mut() {
+		if t.has_clock() {
+			t.clock_out();
+		}
+	}
+}
+
 fn display_only_time(todos: Vec<Todo>, index: u32) {
 	let todo = todos.iter().find(|v| v.index == index - 1);
 
@@ -122,7 +133,7 @@ fn display_clocked_todo_items(todos: Vec<Todo>) {
 }
 
 pub fn execute(opts: &Opts) {
-	if opts.free.len() > 0 {
+	if opts.free.len() > 0 || opts.out_of_all {
 		let todos =
 			&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
 
@@ -130,8 +141,10 @@ pub fn execute(opts: &Opts) {
 			clear_clock(todos, &opts.free);
 		} else if opts.clear_clocked {
 			clear_clocked(todos, &opts.free);
-		} else if opts.set_clocked_time.is_empty() == false {
-			set_clocked(todos, &opts.free, &opts.set_clocked_time);
+		} else if opts.set_time.is_empty() == false {
+			set_clocked(todos, &opts.free, &opts.set_time);
+		} else if opts.out_of_all {
+			clock_out_of_all(todos);
 		} else {
 			check_into_or_outof(todos, &opts.free);
 		}
