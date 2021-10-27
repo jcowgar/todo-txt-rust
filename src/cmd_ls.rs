@@ -1,4 +1,5 @@
 use crate::todo_file;
+
 use gumdrop::Options;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
@@ -14,7 +15,10 @@ pub struct Opts {
 	priority: char,
 
 	#[options(help = "Only todos that are not yet complete")]
-	incomplete_todos_only: bool,
+	incomplete: bool,
+
+	#[options(help = "Only past due todos")]
+	past_due: bool,
 
 	#[options(help = "Order by title only")]
 	title_order: bool,
@@ -31,10 +35,11 @@ pub fn default_opts() -> Opts {
 		help: false,
 		free: [].to_vec(),
 		priority: '\0',
-		incomplete_todos_only: false,
+		incomplete: false,
+		past_due: false,
 		title_order: false,
 		due_date_order: false,
-		limit: 0
+		limit: 0,
 	}
 }
 
@@ -51,10 +56,17 @@ pub fn execute(opts: &Opts) {
 			.collect();
 	}
 
-	if opts.incomplete_todos_only {
+	if opts.incomplete {
 		todos = todos
 			.into_iter()
 			.filter(|t| t.is_complete == false)
+			.collect();
+	}
+
+	if opts.past_due {
+		todos = todos
+			.into_iter()
+			.filter(|t| t.is_complete == false && t.is_past_due())
 			.collect();
 	}
 

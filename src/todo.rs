@@ -203,6 +203,16 @@ impl Todo {
 		result
     }
 
+	pub fn is_past_due(&self) -> bool {
+		let due_date = match self.key_values.get("due") {
+			None => return false,
+			Some(v) => v,
+		};
+		let now = Local::now().format("%Y-%m-%d").to_string();
+
+		due_date <= &now
+	}
+
 	pub fn has_clock(&self) -> bool {
 		self.key_values.contains_key("clock")
 	}
