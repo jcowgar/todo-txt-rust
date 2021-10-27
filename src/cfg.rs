@@ -110,3 +110,7 @@ pub fn get_log_create_date() -> bool {
 pub fn get_log_complete_date() -> bool {
 	get_bool("log_complete_date")
 }
+
+pub fn get_auto_ls() -> bool {
+	get_bool("auto_ls")
+}

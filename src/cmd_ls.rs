@@ -26,6 +26,18 @@ pub struct Opts {
 	limit: usize,
 }
 
+pub fn default_opts() -> Opts {
+	Opts {
+		help: false,
+		free: [].to_vec(),
+		priority: '\0',
+		incomplete_todos_only: false,
+		title_order: false,
+		due_date_order: false,
+		limit: 0
+	}
+}
+
 pub fn execute(opts: &Opts) {
 	let mut todos =
 		todo_file::parse_todos_from_default_file().expect("Could not parse default todo.txt file");

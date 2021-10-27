@@ -95,7 +95,15 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 		Some(Command::Tag(copts)) => cmd_tag::execute(&copts),
 		Some(Command::Pri(copts)) => cmd_pri::execute(&copts),
 		Some(Command::Clock(copts)) => cmd_clock::execute(&copts),
-		_ => usage(),
+		_ => {
+			if cfg::get_auto_ls() {
+				let copts = cmd_ls::default_opts();
+
+				cmd_ls::execute(&copts)
+			} else {
+				usage()
+			}
+		},
 	}
 
 	Ok(())
