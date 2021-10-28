@@ -24,6 +24,7 @@ mod cmd_tag;
 mod todo;
 mod todo_file;
 mod hms;
+mod repeat_time;
 
 #[derive(Debug, Options)]
 struct MyOptions {
