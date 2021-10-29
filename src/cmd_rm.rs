@@ -11,8 +11,9 @@ pub struct Opts {
 }
 
 pub fn execute(opts: &Opts) {
-	let todos =
+	let todo_list =
 		&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
+	let todos = &mut todo_list.items;
 
 	let mut indexes_to_remove = Vec::new();
 

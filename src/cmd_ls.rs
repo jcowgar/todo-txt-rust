@@ -48,62 +48,42 @@ pub fn default_opts() -> Opts {
 }
 
 pub fn execute(opts: &Opts) {
-	let mut todos =
+	let mut todo_list =
 		todo_file::parse_todos_from_default_file().expect("Could not parse default todo.txt file");
 
 	if opts.priority >= 'A' {
 		let priority_ch = opts.priority.to_uppercase().next().unwrap();
 
-		todos = todos
-			.into_iter()
-			.filter(|t| t.priority.is_some() && t.priority.unwrap() <= priority_ch)
-			.collect();
+		todo_list = todo_list.filter_by_priority(priority_ch);
 	}
 
 	if opts.incomplete {
-		todos = todos
-			.into_iter()
-			.filter(|t| t.is_complete == false)
-			.collect();
+		todo_list = todo_list.filter_by_complete(false);
 	}
 
 	if opts.past_due {
-		todos = todos
-			.into_iter()
-			.filter(|t| t.is_complete == false && t.is_past_due())
-			.collect();
+		todo_list = todo_list.filter_by_past_due(true);
 	}
 
 	for text in &opts.free {
-		let mut search_text = text.to_string();
-		let mut compare_result = true;
-
-		if search_text.starts_with("-") {
-			search_text = search_text.replace("-", "");
-			compare_result = false;
-		}
-
-		todos = todos
-			.into_iter()
-			.filter(|t| t.serialize().contains(&search_text) == compare_result)
-			.collect();
+		todo_list = todo_list.filter_by_text(text);
 	}
 
 	if opts.title_order {
-		todos.sort_by(|a, b| a.cmp_by_title(b));
+		todo_list.sort_by_title();
 	} else if opts.due_date_order {
-		todos.sort_by(|a, b| a.cmp_by_due_date(b));
+		todo_list.sort_by_due_date();
 	} else {
-		todos.sort_by(|a, b| a.cmp(b));
+		todo_list.sort();
 	}
 
 	if opts.limit > 0 {
-		todos = todos.into_iter().take(opts.limit).collect();
+		todo_list.items = todo_list.items.into_iter().take(5).collect();
 	}
 
 	let mut stdout = StandardStream::stdout(ColorChoice::Always);
 
-	for t in todos {
+	for t in todo_list.items {
 		let mut out = Vec::new();
 
 		let color = match t.is_complete {

@@ -10,7 +10,8 @@ pub struct Opts {
 }
 
 pub fn execute(_opts: &Opts) {
-	let todos = parse_todos_from_default_file().expect("Could not parse todos from default file");
+	let todo_list = parse_todos_from_default_file().expect("Could not parse todos from default file");
+	let todos = todo_list.items;
 	let mut keep_todos = Vec::new();
 	let mut archive_todos = Vec::new();
 

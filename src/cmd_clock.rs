@@ -74,7 +74,7 @@ fn check_into_or_outof(todos: &mut Vec<Todo>, ids: &Vec<String>) {
 	}
 }
 
-fn clock_out_of_all(todos: &mut Vec<Todo>){
+fn clock_out_of_all(todos: &mut Vec<Todo>) {
 	for t in todos.iter_mut() {
 		if t.has_clock() {
 			t.clock_out();
@@ -118,8 +118,9 @@ fn display_clocked_todo_items(todos: Vec<Todo>) {
 
 pub fn execute(opts: &Opts) {
 	if opts.free.len() > 0 || opts.out_of_all {
-		let todos =
+		let todo_list =
 			&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
+		let todos = &mut todo_list.items;
 
 		if opts.clear {
 			clear_clock(todos, &opts.free);
@@ -135,8 +136,9 @@ pub fn execute(opts: &Opts) {
 
 		write_todos_to_default_file(&todos).expect("Could not write todos to default file");
 	} else {
-		let todos =
+		let todo_list =
 			parse_todos_from_default_file().expect("Could not parse todos from default file");
+		let todos = todo_list.items;
 
 		if opts.only_time > 0 {
 			display_only_time(todos, opts.only_time);

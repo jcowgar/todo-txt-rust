@@ -1,10 +1,8 @@
 use chrono::{Local, NaiveDate, TimeZone};
+use regex::Regex;
 use std::cmp::Ordering;
 use std::collections::HashMap;
-
 use uuid::Uuid;
-
-use regex::Regex;
 
 use crate::hms;
 

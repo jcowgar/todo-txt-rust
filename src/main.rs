@@ -22,6 +22,7 @@ mod cmd_rm;
 mod cmd_tag;
 mod todo;
 mod todo_file;
+mod todo_list;
 
 // generic "helper" modules
 mod hms;

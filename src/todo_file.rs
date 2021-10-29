@@ -6,10 +6,10 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use crate::cfg::{get_archive_filename, get_todo_filename};
-use crate::todo::Todo;
+use crate::{todo::Todo, todo_list::TodoList};
 
 /// Read all todos from `filename`
-pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
+pub fn parse_todos(filename: &str) -> Result<TodoList, io::Error> {
 	let filename_path = PathBuf::from_str(filename).unwrap();
 
 	if filename_path.exists() == false {
@@ -33,11 +33,13 @@ pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
 		})
 		.collect();
 
-	Ok(todos)
+	Ok(TodoList {
+		items: todos,
+	})
 }
 
 /// Read all todos from the user's default todo.txt file
-pub fn parse_todos_from_default_file() -> Result<Vec<Todo>, io::Error> {
+pub fn parse_todos_from_default_file() -> Result<TodoList, io::Error> {
 	parse_todos(&get_todo_filename())
 }
 

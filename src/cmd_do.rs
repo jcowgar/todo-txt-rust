@@ -24,8 +24,10 @@ pub struct Opts {
 
 pub fn execute(opts: &Opts) {
 	let should_archive = opts.archive || get_auto_archive();
-	let todos =
+	let todo_list =
 		&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
+	let todos = &mut todo_list.items;
+
 	let mut new_todos: Vec<Todo> = [].to_vec();
 	let mut todo_count = todos.len();
 
@@ -79,7 +81,8 @@ pub fn execute(opts: &Opts) {
 					let repeat_pattern = t.key_values.get("rep").unwrap();
 
 					if let Some(v) = next_date(repeat_pattern, None) {
-						t.key_values.insert("due".to_string(), v.format("%Y-%m-%d").to_string());
+						t.key_values
+							.insert("due".to_string(), v.format("%Y-%m-%d").to_string());
 					}
 				} else if should_archive {
 					marked_ids.push(iid - 1);

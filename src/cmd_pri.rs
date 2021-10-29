@@ -30,8 +30,9 @@ pub fn execute(opts: &Opts) {
 		return;
 	}
 
-	let todos =
+	let todo_list =
 		&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
+	let todos = &mut todo_list.items;
 
 	for id in free_it {
 		let iid = id.parse::<usize>().unwrap();
