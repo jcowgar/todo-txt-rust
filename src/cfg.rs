@@ -61,7 +61,7 @@ pub fn read_config(config_filename: Option<&str>) -> Result<(), Box<dyn Error>> 
 
 			if found_filename.is_none() {
 				// We do not *have* to have a configuration file.
-				return Ok(())
+				return Ok(());
 			}
 
 			let pathbuf = found_filename.as_ref().unwrap();
@@ -152,7 +152,7 @@ fn relative_to_config_file(pb: PathBuf) -> PathBuf {
 	}
 }
 
-pub fn get_data_file(filename: &str) -> String {
+fn get_data_file(filename: &str) -> String {
 	let mut pb = relative_to_config_file(get_data_path());
 	pb.push(filename);
 	pb.to_str().unwrap().to_string()

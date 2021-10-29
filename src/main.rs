@@ -10,8 +10,8 @@ extern crate termcolor;
 use gumdrop::Options;
 use std::error::Error;
 
+// specific modules for todo-txt
 mod cfg;
-
 mod cmd_add;
 mod cmd_archive;
 mod cmd_clock;
@@ -20,9 +20,10 @@ mod cmd_ls;
 mod cmd_pri;
 mod cmd_rm;
 mod cmd_tag;
-
 mod todo;
 mod todo_file;
+
+// generic "helper" modules
 mod hms;
 mod repeat_time;
 
@@ -105,7 +106,7 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 			} else {
 				usage()
 			}
-		},
+		}
 	}
 
 	Ok(())

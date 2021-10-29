@@ -5,7 +5,7 @@ use std::io::{prelude::Write, BufRead, BufReader};
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use crate::cfg::{get_todo_filename, get_archive_filename};
+use crate::cfg::{get_archive_filename, get_todo_filename};
 use crate::todo::Todo;
 
 /// Read all todos from `filename`
