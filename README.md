@@ -9,9 +9,24 @@ configuration file.
 
 ## Options
 
+### auto_ls : boolean
+
+If true and no commands are given to the todo-txt program, a todo
+listing will be displayed as if you gave the ls command.
+
 ### data_path : string
 
 Path to store `todo.txt` and `archive.txt` files.
+
+### todo_filename : string
+
+Path to store `todo.txt`. If relative, it will be interpreted relative
+to the configuration file. This setting will override `data_path`.
+
+### archive_filename : string
+
+Path to store `todo.txt`. If relative, it will be interpreted relative
+to the configuration file. This setting will override `data_path`.
 
 ### log_create_date : boolean
 
@@ -34,4 +49,3 @@ When marking a task complete, automatically archive the task.
 
 Append content when adding a task for the given project. This is useful for
 adding tags or key:value pairs based on project.
-

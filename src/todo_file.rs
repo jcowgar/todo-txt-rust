@@ -1,24 +1,21 @@
 /// Read and Write to todo.txt formatted files
-use std::fs::File;
-use std::fs::OpenOptions;
+use std::fs::{File, OpenOptions};
 use std::io;
-use std::io::prelude::Write;
-use std::io::BufRead;
-use std::io::BufReader;
+use std::io::{prelude::Write, BufRead, BufReader};
+use std::path::PathBuf;
+use std::str::FromStr;
 
-use crate::cfg::get_data_file;
+use crate::cfg::{get_todo_filename, get_archive_filename};
 use crate::todo::Todo;
-
-fn get_todo_filename() -> String {
-	get_data_file("todo.txt")
-}
-
-fn get_archive_filename() -> String {
-	get_data_file("archive.txt")
-}
 
 /// Read all todos from `filename`
 pub fn parse_todos(filename: &str) -> Result<Vec<Todo>, io::Error> {
+	let filename_path = PathBuf::from_str(filename).unwrap();
+
+	if filename_path.exists() == false {
+		panic!("todo file could not be found: {}", filename_path.display());
+	}
+
 	let f = File::open(filename)?;
 	let file = BufReader::new(&f);
 	let todos = file
