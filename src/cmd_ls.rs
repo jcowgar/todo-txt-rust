@@ -1,5 +1,6 @@
 use crate::todo_file;
 
+use atty;
 use gumdrop::Options;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
@@ -29,8 +30,8 @@ pub struct Opts {
 	#[options(help = "Limit to only the first N todo items", meta = "N")]
 	limit: usize,
 
-	#[options(help = "Do not use color output")]
-	no_color: bool,
+	#[options(help = "Enable color output (auto, always, never)")]
+	color: String,
 }
 
 pub fn default_opts() -> Opts {
@@ -43,7 +44,7 @@ pub fn default_opts() -> Opts {
 		title_order: false,
 		due_date_order: false,
 		limit: 0,
-		no_color: false,
+		color: String::from("auto"),
 	}
 }
 
@@ -81,7 +82,18 @@ pub fn execute(opts: &Opts) {
 		todo_list.items = todo_list.items.into_iter().take(5).collect();
 	}
 
-	let mut stdout = StandardStream::stdout(ColorChoice::Always);
+	let color_choice = match opts.color.to_ascii_lowercase().as_str() {
+		"always" => ColorChoice::Always,
+		"never" => ColorChoice::Never,
+		"auto" | "" | _ =>
+			if atty::is(atty::Stream::Stdout) {
+				ColorChoice::Auto
+			} else {
+				ColorChoice::Never
+			},
+	};
+
+	let mut stdout = StandardStream::stdout(color_choice);
 
 	for t in todo_list.items {
 		let mut out = Vec::new();
@@ -120,12 +132,10 @@ pub fn execute(opts: &Opts) {
 			out.push(kv_pairs_str);
 		}
 
-		if opts.no_color == false {
-			stdout
-				.set_color(ColorSpec::new().set_fg(Some(color)))
-				.expect("Could not set foreground color");
-		}
+		stdout
+			.set_color(ColorSpec::new().set_fg(Some(color)))
+			.expect("Could not set foreground color");
 
-		println!("{:4}: {}", t.index + 1, out.join(" "));
+		println!("{:3}: {}", t.index + 1, out.join(" "));
 	}
 }

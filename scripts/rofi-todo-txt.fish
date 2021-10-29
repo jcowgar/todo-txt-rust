@@ -56,4 +56,4 @@ end
 
 echo -en "\0prompt\x1fSelect todo\n"
 
-eval todo-txt ls --no-color
+eval todo-txt ls
