@@ -96,6 +96,16 @@ fn get_char(name: &str) -> Option<char> {
 	}
 }
 
+fn get_string(name: &str) -> Option<String> {
+	match SETTINGS.read() {
+		Ok(settings) => match settings.get_str(name) {
+			Ok(value) => Some(value),
+			_ => None,
+		},
+		_ => None,
+	}
+}
+
 fn get_default_data_path() -> PathBuf {
 	let mut config_dir = dirs::config_dir().unwrap();
 	config_dir.push("todo-txt");
@@ -152,7 +162,8 @@ fn relative_to_config_file(pb: PathBuf) -> PathBuf {
 	}
 }
 
-fn get_data_file(filename: &str) -> String {
+/// Get the named file under the defined data directory.
+pub fn get_data_filename(filename: &str) -> String {
 	let mut pb = relative_to_config_file(get_data_path());
 	pb.push(filename);
 	pb.to_str().unwrap().to_string()
@@ -168,7 +179,7 @@ fn get_filename(filename_key: &str, default_filename: &str) -> String {
 	};
 
 	match todo_file_pathbuf {
-		None => get_data_file(default_filename),
+		None => get_data_filename(default_filename),
 		Some(p) => relative_to_config_file(p).to_str().unwrap().to_string(),
 	}
 }
@@ -230,4 +241,11 @@ pub fn get_auto_ls() -> bool {
 
 pub fn get_default_priority() -> Option<char> {
 	get_char("default_priority")
+}
+
+pub fn get_note_file_extension() -> String {
+	match get_string("note_file_extension") {
+		None => String::from("txt"),
+		Some(v) => v,
+	}
 }

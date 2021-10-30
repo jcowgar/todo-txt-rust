@@ -20,6 +20,7 @@ mod cmd_ls;
 mod cmd_pri;
 mod cmd_rm;
 mod cmd_tag;
+mod cmd_report;
 mod todo;
 mod todo_file;
 mod todo_list;
@@ -68,6 +69,9 @@ enum Command {
 
 	#[options(help = "Clock in or out of a todo")]
 	Clock(cmd_clock::Opts),
+
+	#[options(help = "Report on todo tasks and projects")]
+	Report(cmd_report::Opts),
 }
 
 fn usage() {
@@ -99,6 +103,7 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 		Some(Command::Tag(copts)) => cmd_tag::execute(&copts),
 		Some(Command::Pri(copts)) => cmd_pri::execute(&copts),
 		Some(Command::Clock(copts)) => cmd_clock::execute(&copts),
+		Some(Command::Report(copts)) => cmd_report::execute(&copts),
 		_ => {
 			if cfg::get_auto_ls() {
 				let copts = cmd_ls::default_opts();

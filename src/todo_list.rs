@@ -6,6 +6,30 @@ pub struct TodoList {
 }
 
 impl TodoList {
+	pub fn split(self) -> (TodoList, TodoList) {
+		let mut active_list = vec![];
+		let mut inactive_list = vec![];
+
+		for todo in self.items {
+			if todo.is_complete {
+				inactive_list.push(todo);
+			} else {
+				active_list.push(todo);
+			}
+		}
+
+		(
+			TodoList { items: active_list },
+			TodoList {
+				items: inactive_list,
+			},
+		)
+	}
+
+	pub fn filter_by_project(self, name: &str) -> TodoList {
+		self.filter_by_text(format!("+{}", name).as_str())
+	}
+
 	pub fn filter_by_priority(self, priority: char) -> TodoList {
 		TodoList {
 			items: self

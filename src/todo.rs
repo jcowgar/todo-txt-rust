@@ -264,8 +264,8 @@ impl Todo {
 			Some(t) => hms::to_seconds(t),
 		};
 
-		match self.key_values.get("clock") {
-			None => "".to_string(),
+		let in_progress_time = match self.key_values.get("clock") {
+			None => 0,
 			Some(clock) => {
 				let now = Local::now();
 
@@ -275,11 +275,17 @@ impl Todo {
 				};
 
 				let todo_clock_in = Local.timestamp(seconds, 0);
-				let time_diff = now - todo_clock_in;
 
-				hms::from_seconds(time_diff.num_seconds() + clocked_time)
+				(now - todo_clock_in).num_seconds()
 			}
-		}
+		};
+
+		hms::from_seconds(in_progress_time + clocked_time)
+	}
+
+	pub fn elapsed_time_as_seconds(&self) -> i64 {
+		let et = self.elapsed_time();
+		hms::to_seconds(&et)
 	}
 
 	pub fn reset(&mut self, dates: bool) {
