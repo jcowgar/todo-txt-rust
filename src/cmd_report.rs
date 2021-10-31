@@ -1,6 +1,7 @@
 use crate::cfg::get_data_filename;
 use crate::cfg::get_note_file_extension;
 use crate::hms;
+use crate::todo::Todo;
 use crate::todo_file;
 use crate::todo_list::TodoList;
 
@@ -37,6 +38,62 @@ fn read_file(filename: &str) -> io::Result<String> {
 	Ok(project_docs)
 }
 
+fn print_todo(stream: &mut termcolor::StandardStream, todo: &Todo) {
+	let priority_color = match todo.priority {
+		Some('A') => Color::Red,
+		Some('B') => Color::Cyan,
+		Some('C') => Color::Magenta,
+		Some(_) => Color::Yellow,
+		None => Color::White,
+	};
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+		.expect("Could not set foreground color");
+
+	print!("  (");
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(priority_color)))
+		.expect("Could not set foreground color");
+
+	print!(
+		"{}",
+		match todo.priority {
+			None => ' ',
+			Some(v) => v,
+		}
+	);
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+		.expect("Could not set foreground color");
+
+	print!(") ");
+
+	let words = todo.task.split_whitespace();
+
+	for word in words {
+		let color = match word.chars().next() {
+			Some('+') => Color::Blue,
+			Some('@') => Color::Magenta,
+			Some('#') => Color::Cyan,
+			_ => Color::White,
+		};
+
+		stream
+			.set_color(ColorSpec::new().set_fg(Some(color)))
+			.expect("Could not set foreground color");
+		print!("{} ", word);
+	}
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
+		.expect("Could not set foreground color");
+
+	println!(" {}", todo.elapsed_time());
+}
+
 fn print_todo_list(stream: &mut termcolor::StandardStream, list: TodoList) {
 	for t in list.items {
 		let mut out = Vec::new();
@@ -59,7 +116,8 @@ fn print_todo_list(stream: &mut termcolor::StandardStream, list: TodoList) {
 			out.push(kv_pairs_str);
 		}
 
-		println!("  {:9} {}", t.elapsed_time(), out.join(" "));
+		//println!("  {:9} {}", t.elapsed_time(), out.join(" "));
+		print_todo(stream, &t);
 	}
 }
 
@@ -100,10 +158,14 @@ pub fn execute(opts: &Opts) {
 		}
 	};
 
-	let mut stdout = StandardStream::stdout(color_choice);
+	let mut stream = StandardStream::stdout(color_choice);
 	let open_task_count = open_todos.items.len();
 	let closed_task_count = closed_todos.items.len();
 	let total_task_count = open_task_count + closed_task_count;
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+		.expect("Could not set foreground color");
 
 	println!("# {}\n", project_name);
 	println!("  {}", project_documentation);
@@ -120,16 +182,24 @@ pub fn execute(opts: &Opts) {
 	println!("");
 
 	if open_todos.items.len() > 0 {
+		stream
+			.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+			.expect("Could not set foreground color");
+
 		println!("# Open Tasks");
 		println!("");
-		print_todo_list(&mut stdout, open_todos);
+		print_todo_list(&mut stream, open_todos);
 		println!("");
 	}
 
 	if closed_todos.items.len() > 0 {
+		stream
+			.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+			.expect("Could not set foreground color");
+
 		println!("# Closed Tasks");
 		println!("");
-		print_todo_list(&mut stdout, closed_todos);
+		print_todo_list(&mut stream, closed_todos);
 		println!("");
 	}
 }

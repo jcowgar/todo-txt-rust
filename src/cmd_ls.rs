@@ -1,4 +1,5 @@
 use crate::todo_file;
+use crate::todo::Todo;
 
 use atty;
 use gumdrop::Options;
@@ -46,6 +47,71 @@ pub fn default_opts() -> Opts {
 		limit: 0,
 		color: String::from("auto"),
 	}
+}
+
+fn print_todo(stream: &mut termcolor::StandardStream, todo: &Todo) {
+	let priority_color = match todo.priority {
+		Some('A') => Color::Red,
+		Some('B') => Color::Cyan,
+		Some('C') => Color::Magenta,
+		Some(_) => Color::Yellow,
+		None => Color::White,
+	};
+
+	stream.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+		.expect("Could not set foreground color");
+
+	print!("  {:3}: ", todo.index + 1);
+
+	print!("[");
+
+	stream.set_color(ColorSpec::new().set_fg(Some(Color::Green)))
+		.expect("Could not set foreground color");
+
+	print!("{}", if todo.is_complete { "X" } else { " " });
+
+	stream.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+		.expect("Could not set foreground color");
+
+	print!("] (");
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(priority_color)))
+		.expect("Could not set foreground color");
+
+	print!("{}", match todo.priority { None => ' ', Some(v) => v, });
+
+	stream.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+		.expect("Could not set foreground color");
+
+	print!(") ");
+
+	let words = todo.task.split_whitespace();
+
+	for word in words {
+		let color = match word.chars().next() {
+			Some('+') => Color::Blue,
+			Some('@') => Color::Magenta,
+			Some('#') => Color::Cyan,
+			_ => Color::White,
+		};
+
+		stream.set_color(ColorSpec::new().set_fg(Some(color)))
+			.expect("Could not set foreground color");
+		print!("{} ", word);
+	}
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
+		.expect("Could not set foreground color");
+
+	println!(" {}", todo.elapsed_time());
+
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+		.expect("Could not set foreground color");
+
+
 }
 
 pub fn execute(opts: &Opts) {
@@ -96,46 +162,6 @@ pub fn execute(opts: &Opts) {
 	let mut stdout = StandardStream::stdout(color_choice);
 
 	for t in todo_list.items {
-		let mut out = Vec::new();
-
-		let color = match t.is_complete {
-			true => Color::Green,
-			false => match t.priority {
-				Some('A') => Color::Red,
-				Some('B') => Color::Cyan,
-				Some('C') => Color::Magenta,
-				Some(_) => Color::Yellow,
-				None => Color::White,
-			},
-		};
-
-		match t.is_complete {
-			true => out.push(String::from("[X]")),
-			_ => out.push(String::from("[ ]")),
-		}
-
-		match t.priority {
-			Some(p) => out.push(format!("({})", p)),
-			None => out.push(String::from("   ")),
-		}
-
-		out.push(t.task.clone());
-
-		let kv_pairs: Vec<std::string::String> = t
-			.key_values
-			.iter()
-			.map(|(k, v)| format!("{}:{}", k, v))
-			.collect();
-		let kv_pairs_str = kv_pairs.join(" ");
-
-		if kv_pairs_str.len() > 0 {
-			out.push(kv_pairs_str);
-		}
-
-		stdout
-			.set_color(ColorSpec::new().set_fg(Some(color)))
-			.expect("Could not set foreground color");
-
-		println!("{:3}: {}", t.index + 1, out.join(" "));
+		print_todo(&mut stdout, &t);
 	}
 }
