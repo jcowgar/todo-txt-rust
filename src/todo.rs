@@ -41,7 +41,7 @@ fn serialize(
 	out.join(" ")
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 /// Todo item
 ///
 /// See <TodoFile>
@@ -356,24 +356,6 @@ impl Todo {
 			Ordering::Greater
 		} else {
 			Ordering::Less
-		}
-	}
-}
-
-impl Clone for Todo {
-	/// Clone a Todo structure
-	fn clone(&self) -> Todo {
-		Todo {
-			index: self.index,
-			id: self.id.clone(),
-			is_complete: self.is_complete,
-			created_at: self.created_at.clone(),
-			completed_at: self.completed_at.clone(),
-			task: self.task.clone(),
-			priority: self.priority,
-			projects: self.projects.clone(),
-			contexts: self.contexts.clone(),
-			key_values: self.key_values.clone(),
 		}
 	}
 }
