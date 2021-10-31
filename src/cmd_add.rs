@@ -72,7 +72,7 @@ pub fn execute(opts: &Opts) {
 		Some(t) => task = format!("({}) {}", t, task),
 	};
 
-	let mut t = Todo::parse(&task).unwrap();
+	let mut t = Todo::try_from(task.as_str()).unwrap();
 
 	if get_log_create_date() {
 		t.created_at = Some(Local::today().naive_local());

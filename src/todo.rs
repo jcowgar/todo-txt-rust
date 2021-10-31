@@ -78,96 +78,6 @@ pub struct Todo {
 }
 
 impl Todo {
-	/// Create a new Todo structure from the given raw line.
-	///
-	/// The method may return None, if the line could not be parsed.
-	pub fn parse(line: &str) -> Option<Todo> {
-		let m = PARSE_RE.captures(line)?;
-		let task = match m.name("task") {
-			None => return None,
-			Some(t) => String::from(t.as_str()),
-		};
-		let date1 = match m.name("date1") {
-			None => None,
-			Some(t) => match NaiveDate::parse_from_str(t.as_str(), "%Y-%m-%d") {
-				Err(e) => {
-					println!("error parsing date1: '{}', {}", t.as_str(), e);
-					None
-				}
-				Ok(t) => Some(t),
-			},
-		};
-		let date2 = match m.name("date2") {
-			None => None,
-			Some(t) => match NaiveDate::parse_from_str(t.as_str(), "%Y-%m-%d") {
-				Err(e) => {
-					println!("error parsing date2: '{}' {}", t.as_str(), e);
-					None
-				}
-				Ok(t) => Some(t),
-			},
-		};
-
-		let projects = PROJECTS_RE
-			.captures_iter(&task)
-			.map(|cap| String::from(&cap[0]))
-			.collect();
-		let contexts = CONTEXTS_RE
-			.captures_iter(&task)
-			.map(|cap| String::from(&cap[0]))
-			.collect();
-		let mut key_values: HashMap<String, String> = KEY_VALUES_RE
-			.captures_iter(&task)
-			.map(|cap| (String::from(&cap[1]), String::from(&cap[2])))
-			.collect();
-		let is_complete = m.name("complete").is_some();
-		let mut priority = m
-			.name("priority")
-			.map(|p| p.as_str().chars().next().unwrap());
-		let created_at = match date2 {
-			None => date1,
-			Some(_) => date2,
-		};
-		let completed_at = match date2 {
-			None => None,
-			Some(_) => date1,
-		};
-		let id = if let Some(v) = key_values.get("id") {
-			match Uuid::parse_str(v) {
-				Err(_) => Uuid::new_v4(),
-				Ok(u) => u,
-			}
-		} else {
-			Uuid::new_v4()
-		};
-
-		if priority == None {
-			priority = match key_values.get("pri") {
-				Some(v) => Some(v.chars().next().unwrap()),
-				None => None,
-			}
-		}
-
-		key_values.remove("id");
-		key_values.remove("pri");
-
-		let task = KEY_VALUES_RE.replace_all(&task, "").to_string();
-		let task = task.trim().to_string();
-
-		Some(Todo {
-			index: 0,
-			id,
-			created_at,
-			completed_at,
-			is_complete,
-			task,
-			priority,
-			projects,
-			contexts,
-			key_values,
-		})
-	}
-
 	pub fn serialize(&self) -> String {
 		let mut serialize_kv_pairs = self.key_values.clone();
 
@@ -360,13 +270,116 @@ impl Todo {
 	}
 }
 
+impl TryFrom<&str> for Todo {
+	type Error = String;
+
+	/// Create a new Todo structure from the given raw line.
+	fn try_from(line: &str) -> Result<Self, Self::Error> {
+		let m = match PARSE_RE.captures(line) {
+			Some(matches) => matches,
+			None => return Err(String::from("Could not find basic todo information")),
+		};
+
+		let task = match m.name("task") {
+			None => return Err(String::from("Could not find title of todo")),
+			Some(t) => String::from(t.as_str()),
+		};
+
+		let date1 = match m.name("date1") {
+			None => None,
+			Some(t) => match NaiveDate::parse_from_str(t.as_str(), "%Y-%m-%d") {
+				Err(e) => {
+					return Err(String::from(format!(
+						"error parsing date1: '{}', {}",
+						t.as_str(),
+						e
+					)))
+				}
+				Ok(t) => Some(t),
+			},
+		};
+		let date2 = match m.name("date2") {
+			None => None,
+			Some(t) => match NaiveDate::parse_from_str(t.as_str(), "%Y-%m-%d") {
+				Err(e) => {
+					return Err(String::from(format!(
+						"error parsing date2: '{}', {}",
+						t.as_str(),
+						e
+					)))
+				}
+				Ok(t) => Some(t),
+			},
+		};
+
+		let projects = PROJECTS_RE
+			.captures_iter(&task)
+			.map(|cap| String::from(&cap[0]))
+			.collect();
+		let contexts = CONTEXTS_RE
+			.captures_iter(&task)
+			.map(|cap| String::from(&cap[0]))
+			.collect();
+		let mut key_values: HashMap<String, String> = KEY_VALUES_RE
+			.captures_iter(&task)
+			.map(|cap| (String::from(&cap[1]), String::from(&cap[2])))
+			.collect();
+		let is_complete = m.name("complete").is_some();
+		let mut priority = m
+			.name("priority")
+			.map(|p| p.as_str().chars().next().unwrap());
+		let created_at = match date2 {
+			None => date1,
+			Some(_) => date2,
+		};
+		let completed_at = match date2 {
+			None => None,
+			Some(_) => date1,
+		};
+		let id = if let Some(v) = key_values.get("id") {
+			match Uuid::parse_str(v) {
+				Err(_) => Uuid::new_v4(),
+				Ok(u) => u,
+			}
+		} else {
+			Uuid::new_v4()
+		};
+
+		if priority == None {
+			priority = match key_values.get("pri") {
+				Some(v) => Some(v.chars().next().unwrap()),
+				None => None,
+			}
+		}
+
+		key_values.remove("id");
+		key_values.remove("pri");
+
+		let task = KEY_VALUES_RE.replace_all(&task, "").to_string();
+		let task = task.trim().to_string();
+
+		Ok(Todo {
+			index: 0,
+			id,
+			created_at,
+			completed_at,
+			is_complete,
+			task,
+			priority,
+			projects,
+			contexts,
+			key_values,
+		})
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
 
 	#[test]
 	fn parse_simple_todo() {
-		let t = Todo::parse("Say hello to mom").unwrap();
+		let t = Todo::try_from("Say hello to mom").unwrap();
 
 		assert_eq!(t.task, "Say hello to mom");
 		assert!(!t.is_complete, "should not be completed");
@@ -377,21 +390,21 @@ mod tests {
 
 	#[test]
 	fn parse_completed_todo() {
-		let t = Todo::parse("x Say hello to mom").unwrap();
+		let t = Todo::try_from("x Say hello to mom").unwrap();
 
 		assert!(t.is_complete, "should be complete");
 	}
 
 	#[test]
 	fn parse_todo_with_priority() {
-		let t = Todo::parse("(A) Say hello to mom").unwrap();
+		let t = Todo::try_from("(A) Say hello to mom").unwrap();
 
 		assert_eq!(t.priority.unwrap(), 'A');
 	}
 
 	#[test]
 	fn parse_todo_with_projects() {
-		let t = Todo::parse("Say hello to mom +Family").unwrap();
+		let t = Todo::try_from("Say hello to mom +Family").unwrap();
 
 		assert_eq!(t.projects.len(), 1);
 		assert_eq!(t.projects[0], "+Family");
@@ -399,7 +412,7 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_contexts() {
-		let t = Todo::parse("Say hello to mom @phone").unwrap();
+		let t = Todo::try_from("Say hello to mom @phone").unwrap();
 
 		assert_eq!(t.contexts.len(), 1);
 		assert_eq!(t.contexts[0], "@phone");
@@ -407,7 +420,7 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_key_value_pairs() {
-		let t = Todo::parse("Say hello to mom due:2018-12-25 time:1am").unwrap();
+		let t = Todo::try_from("Say hello to mom due:2018-12-25 time:1am").unwrap();
 
 		assert!(t.key_values.contains_key("due"), "should contain a due key");
 		assert_eq!(t.key_values.get("due"), Some(&String::from("2018-12-25")));
@@ -421,7 +434,7 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_create_date() {
-		let t = Todo::parse("2021-01-01 happy new year!").unwrap();
+		let t = Todo::try_from("2021-01-01 happy new year!").unwrap();
 
 		assert_eq!(
 			t.created_at.unwrap().format("%Y-%m-%d").to_string(),
@@ -432,7 +445,7 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_create_and_complete_date() {
-		let t = Todo::parse("x 2021-01-02 2021-01-01 happy new year!").unwrap();
+		let t = Todo::try_from("x 2021-01-02 2021-01-01 happy new year!").unwrap();
 
 		assert_eq!(
 			t.created_at.unwrap().format("%Y-%m-%d").to_string(),
@@ -444,8 +457,37 @@ mod tests {
 		);
 	}
 
+	#[test]
+	fn parse_invalid_todo() {
+		let t = Todo::try_from("");
+
+		assert!(t.is_err(), "result should be an error");
+	}
+
+	#[test]
+	fn parse_todo_with_invalid_create_date() {
+		let t = Todo::try_from("(C) 2021-99-99 Hello World");
+
+		assert!(t.is_err(), "result should be an error");
+		assert!(
+			t.unwrap_err().contains("error parsing date1"),
+			"error message should reference date1"
+		);
+	}
+
+	#[test]
+	fn parse_todo_with_invalid_complete_date() {
+		let t = Todo::try_from("x 2021-01-01 2021-99-99 Hello World");
+
+		assert!(t.is_err(), "result should be an error");
+		assert!(
+			t.unwrap_err().contains("error parsing date2"),
+			"error message should reference date1"
+		);
+	}
+
 	fn serialize_test(val: &str) {
-		let t = Todo::parse(val).unwrap();
+		let t = Todo::try_from(val).unwrap();
 
 		// Need to remove the automatically added id:xyz before
 		// comparing to the original source. Since these are random

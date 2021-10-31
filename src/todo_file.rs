@@ -22,9 +22,9 @@ pub fn parse_todos(filename: &str) -> Result<TodoList, io::Error> {
 		.lines()
 		.map(|line| {
 			let lineu = line.unwrap();
-			Todo::parse(&lineu)
+			Todo::try_from(lineu.as_str())
 		})
-		.filter(|t| t.is_some())
+		.filter(|t| t.is_ok())
 		.enumerate()
 		.map(|(i, t)| {
 			let mut result = t.unwrap();
