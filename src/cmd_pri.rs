@@ -17,28 +17,18 @@ pub struct Opts {
 }
 
 pub fn execute(opts: &Opts) {
-	let free_it = opts.free.iter();
-	let clear = opts.clear;
-	let priority = if clear {
-		None
-	} else {
-		opts.priority.to_uppercase().next()
+	let priority = match opts.priority {
+		'\0' | _ if opts.clear => None,
+		p => p.to_uppercase().next(),
 	};
+	let todos = &mut parse_todos_from_default_file()
+		.expect("Could not parse todos from default file")
+		.items;
 
-	if clear == false && priority == None {
-		println!("No priority given, nor command to clear priority.");
-		return;
-	}
-
-	let todo_list =
-		&mut parse_todos_from_default_file().expect("Could not parse todos from default file");
-	let todos = &mut todo_list.items;
-
-	for id in free_it {
-		let iid = id.parse::<usize>().unwrap();
-
-		if let Some(t) = todos.get_mut(iid - 1) {
-			t.priority = priority;
+	for num in opts.free.iter().map(|i| i.parse::<usize>().unwrap() - 1) {
+		match todos.get_mut(num) {
+			None => println!("todo {} was not found", num + 1),
+			Some(t) => t.priority = priority,
 		}
 	}
 
