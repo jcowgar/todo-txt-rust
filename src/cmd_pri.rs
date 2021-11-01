@@ -7,7 +7,7 @@ pub struct Opts {
 	help: bool,
 
 	#[options(help = "Priority [A-Z]")]
-	priority: char,
+	priority: Option<char>,
 
 	#[options(help = "Clear the priority")]
 	clear: bool,
@@ -18,8 +18,9 @@ pub struct Opts {
 
 pub fn execute(opts: &Opts) {
 	let priority = match opts.priority {
-		'\0' | _ if opts.clear => None,
-		p => p.to_uppercase().next(),
+		None => None,
+		Some(_) if opts.clear => None,
+		Some(p) => p.to_uppercase().next(),
 	};
 	let todos = &mut parse_todos_from_default_file()
 		.expect("Could not parse todos from default file")
@@ -32,5 +33,5 @@ pub fn execute(opts: &Opts) {
 		}
 	}
 
-	write_todos_to_default_file(&todos).expect("Could not write todos to default file");
+	write_todos_to_default_file(todos).expect("Could not write todos to default file");
 }

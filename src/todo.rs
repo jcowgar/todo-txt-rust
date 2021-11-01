@@ -255,9 +255,7 @@ impl Todo {
 
 		if self.is_complete && !b.is_complete {
 			Ordering::Greater
-		} else if !self.is_complete && b.is_complete {
-			Ordering::Less
-		} else if duea.is_some() && dueb.is_none() {
+		} else if (!self.is_complete && b.is_complete) || (duea.is_some() && dueb.is_none()) {
 			Ordering::Less
 		} else if duea.is_none() && dueb.is_some() {
 			Ordering::Greater

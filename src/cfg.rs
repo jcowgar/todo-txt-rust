@@ -4,8 +4,6 @@ use std::error::Error;
 use std::path::PathBuf;
 use std::sync::RwLock;
 
-use dirs;
-
 lazy_static! {
 	static ref SETTINGS: RwLock<Config> = RwLock::new(Config::default());
 	static ref CONFIG_FILE: Option<PathBuf> = find_config_file();
@@ -119,15 +117,10 @@ fn get_data_path() -> PathBuf {
 	//
 
 	let data_pathbuf = match SETTINGS.read() {
-		Ok(settings) => {
-			let setting = settings.get::<String>("data_path");
-
-			if setting.is_ok() {
-				PathBuf::from(setting.unwrap())
-			} else {
-				get_default_data_path()
-			}
-		}
+		Ok(settings) => match settings.get::<String>("data_path") {
+			Ok(setting) => PathBuf::from(setting),
+			Err(_) => get_default_data_path(),
+		},
 		_ => get_default_data_path(),
 	};
 
@@ -136,12 +129,9 @@ fn get_data_path() -> PathBuf {
 	//
 
 	if !data_pathbuf.exists() {
-		let data_path = data_pathbuf.as_path();
-
-		match std::fs::create_dir_all(data_path) {
-			Err(_) => (),
-			Ok(_) => (),
-		};
+		if let Err(e) = std::fs::create_dir_all(data_pathbuf.as_path()) {
+			panic!("Can not create data path {}", e);
+		}
 	}
 
 	//
@@ -152,13 +142,12 @@ fn get_data_path() -> PathBuf {
 }
 
 fn relative_to_config_file(pb: PathBuf) -> PathBuf {
-	if pb.is_relative() {
-		match CONFIG_FILE.as_ref() {
+	match pb.is_relative() {
+		true => match CONFIG_FILE.as_ref() {
 			None => pb,
 			Some(p) => p.parent().unwrap().join(pb),
-		}
-	} else {
-		pb
+		},
+		false => pb,
 	}
 }
 
@@ -194,15 +183,10 @@ pub fn get_archive_filename() -> String {
 
 pub fn get_mutually_exclusive_tags() -> Vec<Vec<String>> {
 	match SETTINGS.read() {
-		Ok(settings) => {
-			let setting = settings.get::<Vec<Vec<String>>>("mutually_exclusive_tags");
-
-			if setting.is_ok() {
-				setting.unwrap()
-			} else {
-				vec![]
-			}
-		}
+		Ok(settings) => match settings.get::<Vec<Vec<String>>>("mutually_exclusive_tags") {
+			Ok(v) => v,
+			Err(_) => vec![],
+		},
 		_ => vec![],
 	}
 }
@@ -211,14 +195,10 @@ pub fn get_project_rules(project_name: &str) -> HashMap<String, String> {
 	let key = format!("project_rules.{}", project_name);
 
 	match SETTINGS.read() {
-		Ok(settings) => {
-			let setting = settings.get::<HashMap<String, String>>(&key);
-
-			match setting {
-				Ok(hm) => hm,
-				_ => HashMap::new(),
-			}
-		}
+		Ok(settings) => match settings.get::<HashMap<String, String>>(&key) {
+			Ok(hm) => hm,
+			_ => HashMap::new(),
+		},
 		_ => HashMap::new(),
 	}
 }
