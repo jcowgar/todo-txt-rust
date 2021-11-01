@@ -2,6 +2,7 @@ use chrono::{Local, NaiveDate, TimeZone};
 use regex::Regex;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::str::FromStr;
 use uuid::Uuid;
 
 use crate::hms;
@@ -270,11 +271,11 @@ impl Todo {
 	}
 }
 
-impl TryFrom<&str> for Todo {
-	type Error = String;
+impl FromStr for Todo {
+	type Err = String;
 
 	/// Create a new Todo structure from the given raw line.
-	fn try_from(line: &str) -> Result<Self, Self::Error> {
+	fn from_str(line: &str) -> Result<Self, Self::Err> {
 		let m = match PARSE_RE.captures(line) {
 			Some(matches) => matches,
 			None => return Err(String::from("Could not find basic todo information")),
@@ -379,7 +380,7 @@ mod tests {
 
 	#[test]
 	fn parse_simple_todo() {
-		let t = Todo::try_from("Say hello to mom").unwrap();
+		let t = "Say hello to mom".parse::<Todo>().unwrap();
 
 		assert_eq!(t.task, "Say hello to mom");
 		assert!(!t.is_complete, "should not be completed");
@@ -390,21 +391,21 @@ mod tests {
 
 	#[test]
 	fn parse_completed_todo() {
-		let t = Todo::try_from("x Say hello to mom").unwrap();
+		let t = "x Say hello to mom".parse::<Todo>().unwrap();
 
 		assert!(t.is_complete, "should be complete");
 	}
 
 	#[test]
 	fn parse_todo_with_priority() {
-		let t = Todo::try_from("(A) Say hello to mom").unwrap();
+		let t = "(A) Say hello to mom".parse::<Todo>().unwrap();
 
 		assert_eq!(t.priority.unwrap(), 'A');
 	}
 
 	#[test]
 	fn parse_todo_with_projects() {
-		let t = Todo::try_from("Say hello to mom +Family").unwrap();
+		let t = "Say hello to mom +Family".parse::<Todo>().unwrap();
 
 		assert_eq!(t.projects.len(), 1);
 		assert_eq!(t.projects[0], "+Family");
@@ -412,7 +413,7 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_contexts() {
-		let t = Todo::try_from("Say hello to mom @phone").unwrap();
+		let t = "Say hello to mom @phone".parse::<Todo>().unwrap();
 
 		assert_eq!(t.contexts.len(), 1);
 		assert_eq!(t.contexts[0], "@phone");
@@ -420,7 +421,9 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_key_value_pairs() {
-		let t = Todo::try_from("Say hello to mom due:2018-12-25 time:1am").unwrap();
+		let t = "Say hello to mom due:2018-12-25 time:1am"
+			.parse::<Todo>()
+			.unwrap();
 
 		assert!(t.key_values.contains_key("due"), "should contain a due key");
 		assert_eq!(t.key_values.get("due"), Some(&String::from("2018-12-25")));
@@ -434,7 +437,7 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_create_date() {
-		let t = Todo::try_from("2021-01-01 happy new year!").unwrap();
+		let t = "2021-01-01 happy new year!".parse::<Todo>().unwrap();
 
 		assert_eq!(
 			t.created_at.unwrap().format("%Y-%m-%d").to_string(),
@@ -445,7 +448,9 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_create_and_complete_date() {
-		let t = Todo::try_from("x 2021-01-02 2021-01-01 happy new year!").unwrap();
+		let t = "x 2021-01-02 2021-01-01 happy new year!"
+			.parse::<Todo>()
+			.unwrap();
 
 		assert_eq!(
 			t.created_at.unwrap().format("%Y-%m-%d").to_string(),
@@ -459,14 +464,14 @@ mod tests {
 
 	#[test]
 	fn parse_invalid_todo() {
-		let t = Todo::try_from("");
+		let t = "".parse::<Todo>();
 
 		assert!(t.is_err(), "result should be an error");
 	}
 
 	#[test]
 	fn parse_todo_with_invalid_create_date() {
-		let t = Todo::try_from("(C) 2021-99-99 Hello World");
+		let t = "(C) 2021-99-99 Hello World".parse::<Todo>();
 
 		assert!(t.is_err(), "result should be an error");
 		assert!(
@@ -477,7 +482,7 @@ mod tests {
 
 	#[test]
 	fn parse_todo_with_invalid_complete_date() {
-		let t = Todo::try_from("x 2021-01-01 2021-99-99 Hello World");
+		let t = "x 2021-01-01 2021-99-99 H".parse::<Todo>();
 
 		assert!(t.is_err(), "result should be an error");
 		assert!(
@@ -487,7 +492,7 @@ mod tests {
 	}
 
 	fn serialize_test(val: &str) {
-		let t = Todo::try_from(val).unwrap();
+		let t = val.parse::<Todo>().unwrap();
 
 		// Need to remove the automatically added id:xyz before
 		// comparing to the original source. Since these are random
