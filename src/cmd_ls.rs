@@ -1,5 +1,5 @@
-use crate::todo_file;
 use crate::todo::Todo;
+use crate::todo_file;
 
 use atty;
 use gumdrop::Options;
@@ -58,19 +58,22 @@ fn print_todo(stream: &mut termcolor::StandardStream, todo: &Todo) {
 		None => Color::White,
 	};
 
-	stream.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
 		.expect("Could not set foreground color");
 
 	print!("  {:3}: ", todo.index + 1);
 
 	print!("[");
 
-	stream.set_color(ColorSpec::new().set_fg(Some(Color::Green)))
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::Green)))
 		.expect("Could not set foreground color");
 
 	print!("{}", if todo.is_complete { "X" } else { " " });
 
-	stream.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
 		.expect("Could not set foreground color");
 
 	print!("] (");
@@ -79,9 +82,16 @@ fn print_todo(stream: &mut termcolor::StandardStream, todo: &Todo) {
 		.set_color(ColorSpec::new().set_fg(Some(priority_color)))
 		.expect("Could not set foreground color");
 
-	print!("{}", match todo.priority { None => ' ', Some(v) => v, });
+	print!(
+		"{}",
+		match todo.priority {
+			None => ' ',
+			Some(v) => v,
+		}
+	);
 
-	stream.set_color(ColorSpec::new().set_fg(Some(Color::White)))
+	stream
+		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
 		.expect("Could not set foreground color");
 
 	print!(") ");
@@ -96,7 +106,8 @@ fn print_todo(stream: &mut termcolor::StandardStream, todo: &Todo) {
 			_ => Color::White,
 		};
 
-		stream.set_color(ColorSpec::new().set_fg(Some(color)))
+		stream
+			.set_color(ColorSpec::new().set_fg(Some(color)))
 			.expect("Could not set foreground color");
 		print!("{} ", word);
 	}
@@ -110,8 +121,6 @@ fn print_todo(stream: &mut termcolor::StandardStream, todo: &Todo) {
 	stream
 		.set_color(ColorSpec::new().set_fg(Some(Color::White)))
 		.expect("Could not set foreground color");
-
-
 }
 
 pub fn execute(opts: &Opts) {
@@ -151,12 +160,13 @@ pub fn execute(opts: &Opts) {
 	let color_choice = match opts.color.to_ascii_lowercase().as_str() {
 		"always" => ColorChoice::Always,
 		"never" => ColorChoice::Never,
-		"auto" | "" | _ =>
+		"auto" | "" | _ => {
 			if atty::is(atty::Stream::Stdout) {
 				ColorChoice::Auto
 			} else {
 				ColorChoice::Never
-			},
+			}
+		}
 	};
 
 	let mut stdout = StandardStream::stdout(color_choice);

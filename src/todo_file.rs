@@ -33,9 +33,7 @@ pub fn parse_todos(filename: &str) -> Result<TodoList, io::Error> {
 		})
 		.collect();
 
-	Ok(TodoList {
-		items: todos,
-	})
+	Ok(TodoList { items: todos })
 }
 
 /// Read all todos from the user's default todo.txt file

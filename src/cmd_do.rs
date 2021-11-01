@@ -29,8 +29,6 @@ pub fn execute(opts: &Opts) {
 	let todos = &mut todo_list.items;
 
 	let mut new_todos: Vec<Todo> = [].to_vec();
-	let mut todo_count = todos.len();
-
 	let mut marked_ids = Vec::new();
 
 	for id in &opts.free {
@@ -51,20 +49,8 @@ pub fn execute(opts: &Opts) {
 				// original intact. So duplicate parent task, clear it's
 				// temporary state, and mark the duplicate as completed.
 				if t.has_repeat() {
-					todo_count += 1;
-
-					let done_t = Todo {
-						id: Uuid::new_v4(),
-						index: todo_count as u32,
-						is_complete: t.is_complete,
-						created_at: t.created_at.clone(),
-						completed_at: t.completed_at.clone(),
-						task: t.task.clone(),
-						priority: t.priority,
-						projects: t.projects.clone(),
-						contexts: t.contexts.clone(),
-						key_values: t.key_values.clone(),
-					};
+					let mut done_t = t.clone();
+					done_t.id = Uuid::new_v4();
 
 					if should_archive {
 						append_todo_to_archive_file(&done_t).unwrap();
@@ -103,9 +89,7 @@ pub fn execute(opts: &Opts) {
 		}
 	}
 
-	for t in new_todos {
-		todos.push(t);
-	}
+	todos.append(&mut new_todos);
 
 	write_todos_to_default_file(&todos).expect("Could not write todos to default file");
 }

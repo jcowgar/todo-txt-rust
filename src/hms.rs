@@ -53,25 +53,25 @@ pub fn from_seconds(seconds: i64) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+	use super::*;
 
-    #[test]
-    fn hms_to_seconds() {
+	#[test]
+	fn hms_to_seconds() {
 		let seconds = to_seconds(&"1h1m1s".to_string());
 		assert_eq!(seconds, 3661);
-    }
+	}
 
-    #[test]
-    fn ms_to_seconds() {
+	#[test]
+	fn ms_to_seconds() {
 		let seconds = to_seconds(&"1m1s".to_string());
 		assert_eq!(seconds, 61);
-    }
+	}
 
-    #[test]
-    fn s_to_seconds() {
+	#[test]
+	fn s_to_seconds() {
 		let seconds = to_seconds(&"1s".to_string());
 		assert_eq!(seconds, 1);
-    }
+	}
 
 	#[test]
 	fn from_seconds_hms() {

@@ -7,9 +7,9 @@ use gumdrop::Options;
 use regex::Regex;
 
 lazy_static! {
-	static ref YYYYMMDD_RE: Regex = Regex::new(r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})$").unwrap();
+	static ref YYYYMMDD_RE: Regex =
+		Regex::new(r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})$").unwrap();
 }
-
 
 #[derive(Debug, Options)]
 pub struct Opts {
@@ -36,7 +36,7 @@ fn compute_relative_date(value: &str) -> NaiveDate {
 		"today" => today,
 		"tomorrow" => today + Duration::days(1),
 		"monday" => repeat_time::next_weekday(chrono::Weekday::Mon, Some(today)),
-		"tuesday" =>repeat_time::next_weekday(chrono::Weekday::Tue, Some(today)),
+		"tuesday" => repeat_time::next_weekday(chrono::Weekday::Tue, Some(today)),
 		"wednesday" => repeat_time::next_weekday(chrono::Weekday::Wed, Some(today)),
 		"thursday" => repeat_time::next_weekday(chrono::Weekday::Thu, Some(today)),
 		"friday" => repeat_time::next_weekday(chrono::Weekday::Fri, Some(today)),
@@ -50,12 +50,12 @@ fn compute_relative_date(value: &str) -> NaiveDate {
 
 			// try repeat_time parsing
 			match repeat_time::next_date(value, Some(today)) {
-				None => {},
+				None => {}
 				Some(v) => return v,
 			}
 
 			today
-		},
+		}
 	};
 
 	relative_date
@@ -86,7 +86,8 @@ pub fn execute(opts: &Opts) {
 		let due_str = t.key_values.get("due").unwrap().as_str();
 		let due_date = compute_relative_date(due_str);
 
-		t.key_values.insert("due".to_string(), due_date.format("%Y-%m-%d").to_string());
+		t.key_values
+			.insert("due".to_string(), due_date.format("%Y-%m-%d").to_string());
 	}
 
 	for project in &t.projects {

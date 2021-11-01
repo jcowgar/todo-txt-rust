@@ -4,7 +4,8 @@ use chrono::{Datelike, Duration, Local, NaiveDate, Weekday};
 use regex::Regex;
 
 lazy_static! {
-    static ref REPEAT_PATTERN_RE: Regex = Regex::new(r"^(?P<frequency>\d+)(?P<unit>[dwmy])$").unwrap();
+	static ref REPEAT_PATTERN_RE: Regex =
+		Regex::new(r"^(?P<frequency>\d+)(?P<unit>[dwmy])$").unwrap();
 }
 
 /// Step through
@@ -49,7 +50,11 @@ pub fn next_date(pattern: &str, reference_date: Option<NaiveDate>) -> Option<Nai
 				"d" => Some(ref_d.add(Duration::days(frequency as i64))),
 				"w" => Some(ref_d.add(Duration::weeks(frequency as i64))),
 				"m" => Some(compute_month(ref_d, frequency)),
-				"y" => Some(NaiveDate::from_ymd(ref_d.year() + frequency as i32, ref_d.month(), ref_d.day())),
+				"y" => Some(NaiveDate::from_ymd(
+					ref_d.year() + frequency as i32,
+					ref_d.month(),
+					ref_d.day(),
+				)),
 				_ => None,
 			}
 		}
@@ -62,7 +67,8 @@ pub fn next_weekday(weekday: Weekday, reference_date: Option<NaiveDate>) -> Naiv
 		Some(v) => v,
 	};
 	let current_weekday = ref_d.weekday();
-	let mut diff = weekday.num_days_from_monday() as i32 - current_weekday.num_days_from_monday() as i32;
+	let mut diff =
+		weekday.num_days_from_monday() as i32 - current_weekday.num_days_from_monday() as i32;
 
 	if diff < 0 {
 		diff += 7;
@@ -73,88 +79,87 @@ pub fn next_weekday(weekday: Weekday, reference_date: Option<NaiveDate>) -> Naiv
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+	use super::*;
 
-
-    #[test]
-    fn test_1_day() {
+	#[test]
+	fn test_1_day() {
 		let repeat_pattern = "1d";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2021);
 		assert_eq!(n.month(), 1);
 		assert_eq!(n.day(), 2);
-    }
+	}
 
-    #[test]
-    fn test_14_days() {
+	#[test]
+	fn test_14_days() {
 		let repeat_pattern = "14d";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2021);
 		assert_eq!(n.month(), 1);
 		assert_eq!(n.day(), 15);
-    }
+	}
 
-    #[test]
-    fn test_1_week() {
+	#[test]
+	fn test_1_week() {
 		let repeat_pattern = "1w";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2021);
 		assert_eq!(n.month(), 1);
 		assert_eq!(n.day(), 8);
-    }
+	}
 
-    #[test]
-    fn test_10_weeks() {
+	#[test]
+	fn test_10_weeks() {
 		let repeat_pattern = "10w";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2021, "year");
 		assert_eq!(n.month(), 3, "month");
 		assert_eq!(n.day(), 12, "day");
-    }
+	}
 
-    #[test]
-    fn test_1_month() {
+	#[test]
+	fn test_1_month() {
 		let repeat_pattern = "1m";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2021);
 		assert_eq!(n.month(), 2);
 		assert_eq!(n.day(), 1);
-    }
+	}
 
-    #[test]
-    fn test_2_months() {
+	#[test]
+	fn test_2_months() {
 		let repeat_pattern = "2m";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2021, "year");
 		assert_eq!(n.month(), 3, "month");
 		assert_eq!(n.day(), 1, "day");
-    }
+	}
 
-    #[test]
-    fn test_13_months() {
+	#[test]
+	fn test_13_months() {
 		let repeat_pattern = "13m";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2022, "year");
 		assert_eq!(n.month(), 2, "month");
 		assert_eq!(n.day(), 1, "day");
-    }
+	}
 
-    #[test]
-    fn test_1_year() {
+	#[test]
+	fn test_1_year() {
 		let repeat_pattern = "1y";
 		let n = next_date(repeat_pattern, Some(NaiveDate::from_ymd(2021, 1, 1))).unwrap();
 
 		assert_eq!(n.year(), 2022);
 		assert_eq!(n.month(), 1);
 		assert_eq!(n.day(), 1);
-    }
+	}
 
 	#[test]
 	fn test_next_weekday_fri_to_sat() {
